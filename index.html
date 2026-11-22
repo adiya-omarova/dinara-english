@@ -146,6 +146,7 @@ table.t th{background:var(--brand-soft)}
 .topt.right input:checked+span{background:var(--good-soft);border-color:var(--good);color:var(--good);font-weight:700}
 .topt.wrong input:checked+span{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700}
 .topt input:disabled+span{cursor:default}
+.btn.danger{color:var(--bad);border-color:var(--bad)} .btn.danger:hover{background:var(--bad-soft)}
 .tnav{position:sticky;bottom:0;z-index:15;margin:14px -16px 0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.08)}
 .tnav-in{max-width:1000px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .tnav-info{font-weight:600;font-size:.95rem} .tnav-btns{display:flex;gap:8px;flex-wrap:wrap}
@@ -936,7 +937,7 @@ const NEXTSTEP={
 };
 const NUM={A2:2,B1:3,B2:4,C1:5}, NAME={1:"A1",2:"A2",3:"B1",4:"B2",5:"C1"}, LVLS=["A2","B1","B2","C1"];
 const lvlLabel=v=>{const b=Math.floor(v+1e-9);return (b<2?"Below A2":NAME[Math.min(b,5)])+(v-b>=.5-1e-9&&b>=2&&b<5?"+":"")};
-let tAns=store.get("tAns2",{}), tDone=store.get("tDone2",{}), tPart="gv"; const ordCache={};
+let tAns=store.get("tAns2",{}), tDone=store.get("tDone2",{}), tRestarts=store.get("tRestarts2",{}), tPart="gv"; const ordCache={};
 const esc=s=>String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;");
 const PARTS=[["gv","1 · Grammar & vocabulary"],["read","2 · Reading"],["listen","3 · Listening"],["result","📊 Result & breakdown"]];
 const isOK=q=>tAns[q.id]===q.o[0];
@@ -987,6 +988,8 @@ function analyse(){
 function reportText(a,nm){
   const L=[];
   L.push("TOTAL SCORE: "+a.total.right+" out of "+a.total.of+" ("+a.total.pct+"%)");
+  const rs=Object.keys(tRestarts).filter(k=>tRestarts[k]);
+  if(rs.length)L.push("SECTIONS RESTARTED: "+rs.map(k=>SKILLS[k]+" x"+tRestarts[k]).join(", ")+" (answers shown are from the last attempt)");
   L.push("LEVEL: "+lvlLabel(a.r.value)+" (grammar, reading and listening)");
   L.push("");L.push("WHY THIS LEVEL");a.why.forEach(w=>L.push("- "+w));
   L.push("");L.push("SCORE BY LEVEL (60% = pass)");
@@ -1019,7 +1022,7 @@ function renderTest(){
     if(done){const s=sectionScore(tPart);info=`✔ Section finished: <b>${s.right} out of ${s.of} (${s.pct}%)</b>`;
       main=last?`<button class="btn pri" data-act="finish">See results &amp; send to my teacher →</button>`:`<button class="btn pri" data-nav="${next[0]}">Next: ${next[1].replace(/^\d · /,"")} →</button>`}
     else{info='<span id="tLeft"></span>';main=`<button class="btn pri" data-act="finish-section">${last?"✅ Finish test":"✅ Finish section"}</button>`}
-    h+=`<div class="tnav"><div class="tnav-in"><div class="tnav-info">${info}<div class="date">Answers are saved automatically.</div></div><div class="tnav-btns">${prev?`<button class="btn" data-nav="${prev[0]}">← Back</button>`:""}${main}</div></div></div>`;
+    h+=`<div class="tnav"><div class="tnav-in"><div class="tnav-info">${info}<div class="date">Answers are saved automatically.</div></div><div class="tnav-btns">${prev?`<button class="btn" data-nav="${prev[0]}">← Back</button>`:""}<button class="btn danger" data-act="restart">✖ Cancel &amp; start over</button>${main}</div></div></div>`;
   }
   $("#tBody").innerHTML=h;
   updateLeft();
@@ -1039,6 +1042,16 @@ function modal(title,html,btns){
   btns.forEach(x=>{const el=document.createElement("button");el.className="btn"+(x.pri?" pri":"");el.textContent=x.label;el.onclick=()=>{closeModal();if(x.fn)x.fn()};foot.appendChild(el)});
   b.querySelector(".mx").onclick=closeModal;b.addEventListener("click",e=>{if(e.target===b)closeModal()});
   document.body.appendChild(b);
+}
+function restartSection(p){
+  const n=ALLQ.filter(q=>q.p===p&&tAns[q.id]!==undefined).length;
+  modal("Cancel this section?",`<p>All ${n?`<b>${n}</b> `:""}answers in <b>${SKILLS[p]}</b> will be deleted${tDone[p]?" and the score will be removed":""}. You can then start this section again from question 1.</p>`,
+    [{label:"Keep my answers"},{label:"Delete & start over",pri:true,fn:()=>{
+      ALLQ.filter(q=>q.p===p).forEach(q=>{delete tAns[q.id];delete ordCache[q.id]});
+      tDone[p]=false;tRestarts[p]=(tRestarts[p]||0)+1;
+      store.set("tAns2",tAns);store.set("tDone2",tDone);store.set("tRestarts2",tRestarts);
+      renderTest();window.scrollTo({top:$("#tTabs").offsetTop-80,behavior:"smooth"});
+    }}]);
 }
 function finishSection(p){
   const left=tot(p)-ans(p),last=p==="listen";
@@ -1120,9 +1133,10 @@ $("#tBody").addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;
   if(a.dataset.act==="finish")finishTest();
   if(a.dataset.act==="finish-section")finishSection(tPart);
+  if(a.dataset.act==="restart")restartSection(tPart);
   if(a.dataset.act==="send")sendResult();
   if(a.dataset.act==="save"){const r=receptive();const h=store.get("tHist",[]);h.push({d:new Date().toLocaleDateString("en-GB"),r:lvlLabel(r.value)});store.set("tHist",h);renderTest()}
-  if(a.dataset.act==="reset"&&confirm("Clear all answers and start a new test?")){tAns={};tDone={};store.set("tAns2",{});store.set("tDone2",{});tPart="gv";renderTest()}
+  if(a.dataset.act==="reset"&&confirm("Clear all answers and start a new test?")){tAns={};tDone={};tRestarts={};store.set("tAns2",{});store.set("tDone2",{});store.set("tRestarts2",{});tPart="gv";renderTest()}
 });
 renderTest();
 
