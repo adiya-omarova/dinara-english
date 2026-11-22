@@ -143,6 +143,8 @@ table.t th{background:var(--brand-soft)}
 .big{font-size:3rem;font-weight:800;color:var(--brand);line-height:1.1}
 .tsel{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;margin:6px 0}
 .hist{font-size:.92rem;color:var(--muted)}
+.pill.g{background:var(--good-soft);color:var(--good)} .pill.r{background:var(--bad-soft);color:var(--bad)}
+.trow{padding:6px 0;border-top:1px solid var(--line)} .trow:first-of-type{border-top:0}
 footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:.85rem}
 .hero{background:linear-gradient(135deg,var(--brand),#3f8f87);color:#fff;border-radius:22px;padding:30px 26px;margin-bottom:20px}
 .hero h1{margin-bottom:.3em} .hero p{opacity:.92;max-width:55ch;margin:0}
@@ -532,7 +534,7 @@ footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 <!-- LEVEL TEST -->
 <section class="page" id="test">
   <h1>🎯 Level test</h1>
-  <p class="lead">A CEFR placement test for Dinara (A2 → C1). It checks grammar &amp; vocabulary, reading and listening automatically, and gives a teacher’s rubric for speaking and writing.</p>
+  <p class="lead">A CEFR placement test for Dinara (A2 → C1). It checks grammar &amp; vocabulary, reading and listening (with real British Council recordings), then shows exactly why she got her level and how to improve.</p>
 
   <details class="card" id="tAbout" style="margin-top:14px">
     <summary style="cursor:pointer;font-weight:700">ℹ️ How this test was designed (and its limits)</summary>
@@ -541,10 +543,11 @@ footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       <li><b>Cambridge English Placement Test:</b> Reading, Use of English and Listening, reported as a CEFR level from Pre-A1 to C2 (<a href="https://www.cambridgeenglish.org/find-a-centre/exam-centres/support-for-centres/placing-students-in-the-right-exam/" target="_blank" rel="noopener">Cambridge</a>).</li>
       <li><b>Oxford Placement Test:</b> a Use of English section plus a Listening section, each with its own score and CEFR band (<a href="https://en.wikipedia.org/wiki/Oxford_Placement_Test" target="_blank" rel="noopener">overview</a>).</li>
       <li><b>EF SET:</b> reading and listening only, adaptive, with results aligned to the six CEFR levels (<a href="https://www.efset.org/cefr/" target="_blank" rel="noopener">EF SET &amp; CEFR</a>).</li>
-      <li><b>Linguaskill:</b> adds writing and speaking, which are marked separately from reading and listening (<a href="https://www.cambridgeenglish.org/exams-and-tests/linguaskill/information-about-the-exam/the-science-behind-the-exam/index.aspx" target="_blank" rel="noopener">Cambridge</a>).</li>
+      <li><b>Linguaskill:</b> a fuller version that also adds writing and speaking, marked separately (<a href="https://www.cambridgeenglish.org/exams-and-tests/linguaskill/information-about-the-exam/the-science-behind-the-exam/index.aspx" target="_blank" rel="noopener">Cambridge</a>).</li>
     </ul>
-    <div class="note red"><b>Limits:</b> this is a quick, <u>indicative</u> check with 46 questions. It is not an official exam and not adaptive. Real tests use thousands of calibrated questions. Use the result to guide teaching, and retest every few weeks. Speaking and writing must be judged by the teacher (Part 4).</div>
+    <div class="note red"><b>Limits:</b> this is a quick, <u>indicative</u> check with 51 questions. It is not an official exam and not adaptive. Real tests use thousands of calibrated questions. It does <u>not</u> test speaking or writing. Use the result to guide teaching, and retest every few weeks.</div>
     <p><b>How the level is calculated:</b> each question has a hidden CEFR level (A2, B1, B2 or C1). A level counts as <i>passed</i> at 60% correct or more. Dinara’s level is the highest level she passes in a row. A “+” means she scored 35–59% on the next level up.</p>
+    <p><b>Listening:</b> the three recordings are the British Council’s own LearnEnglish listening lessons (linked, not copied). The questions are written for this site and are not the British Council’s exercises.</p>
   </details>
 
   <div class="chips" id="tTabs"></div>
@@ -818,149 +821,223 @@ $("#gChips").innerHTML=GR.map(([g,list])=>`<div style="margin:0 0 10px"><div cla
 $("#gChips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(c){const t=document.getElementById(c.dataset.id);window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})}});
 
 /* ---------- LEVEL TEST ---------- */
+const BC="https://learnenglish.britishcouncil.org/free-resources/listening/";
+/* [level, question, correct, wrong1, wrong2, topic, why] */
 const GV=[
-["A2","She ___ to the gym every Tuesday.","goes","go","is go"],
-["A2","There ___ any milk in the fridge.","isn’t","aren’t","don’t"],
-["A2","My brother is taller ___ me.","than","that","as"],
-["A2","What time ___ the film start?","does","is","do"],
-["A2","We ___ to the cinema yesterday.","went","go","gone"],
-["A2","Could you ___ me the way to the station?","tell","say","speak"],
-["B1","I haven’t seen him ___ last year.","since","for","from"],
-["B1","If it rains tomorrow, we ___ at home.","will stay","would stay","stayed"],
-["B1","She asked me where I ___.","lived","live","did live"],
-["B1","You ___ wear a seatbelt. It’s the law.","must","might","can"],
-["B1","I enjoy ___ to music while I cook.","listening","to listen","listen"],
-["B1","This is the café ___ I told you about.","that","who","where"],
-["B1","He’s the man ___ car was stolen.","whose","who’s","which"],
-["B1","When you called, I ___ a shower, so I couldn’t answer.","was taking","took","take"],
-["B1","I can’t ___ up my mind which jacket to buy.","make","do","take"],
-["B2","If I ___ more time, I would learn another language.","had","have","would have"],
-["B2","By the time we arrived, the film ___.","had already started","already started","was already starting"],
-["B2","I wish I ___ speak French.","could","can","would"],
-["B2","The new bridge ___ next year.","will be completed","will complete","completes"],
-["B2","She suggested ___ a taxi.","taking","to take","take"],
-["B2","He denied ___ the window.","breaking","to break","break"],
-["B2","I’m not used to ___ up so early.","getting","get","got"],
-["B2","Her speech had a great ___ on the audience.","effect","affect","affection"],
-["B2","___ being tired, she finished the report.","Despite","Although","However"],
-["C1","Hardly ___ the house when it started to rain.","had we left","we had left","did we leave"],
-["C1","Had I known about the delay, I ___ earlier.","would have left","would leave","had left"],
-["C1","The manager insisted that the report ___ by Friday.","be submitted","is submitted","was submitted"],
-["C1","He was reluctant ___ any details.","to give","giving","for giving"],
-["C1","No sooner ___ sat down than the phone rang.","had she","she had","did she"],
-["C1","The results were ___ with our expectations.","consistent","consisting","consistently"]
+["A2","She ___ to the gym every Tuesday.","goes","go","is go","basics","In the Present Simple, he/she/it takes -s: she goes."],
+["A2","There ___ any milk in the fridge.","isn’t","aren’t","don’t","basics","“Milk” is uncountable, so use the singular: there isn’t any milk."],
+["A2","My brother is taller ___ me.","than","that","as","comp","Use “than” to compare two things: taller than."],
+["A2","What time ___ the film start?","does","is","do","basics","Present Simple questions with “the film” (it): does + base verb."],
+["A2","We ___ to the cinema yesterday.","went","go","gone","tenses","“Yesterday” is a finished time, so use Past Simple. go → went."],
+["A2","Could you ___ me the way to the station?","tell","say","speak","vocab","We say “tell someone the way”. (say and speak don’t take this pattern.)"],
+["B1","I haven’t seen him ___ last year.","since","for","from","tenses","Present Perfect: since + a starting point; for + a period of time."],
+["B1","If it rains tomorrow, we ___ at home.","will stay","would stay","stayed","cond","First conditional: if + present, will + base verb."],
+["B1","She asked me where I ___.","lived","live","did live","reported","Reported question: move one tense back and use normal word order (no “did”)."],
+["B1","You ___ wear a seatbelt. It’s the law.","must","might","can","modal","A law is a strong obligation: must / have to."],
+["B1","I enjoy ___ to music while I cook.","listening","to listen","listen","patterns","enjoy + -ing."],
+["B1","This is the café ___ I told you about.","that","who","where","rel","“that” stands for the café (a thing). “where” does not fit after “told you about”."],
+["B1","He’s the man ___ car was stolen.","whose","who’s","which","rel","“whose” shows possession: the man whose car…"],
+["B1","When you called, I ___ a shower, so I couldn’t answer.","was taking","took","take","tenses","An action in progress when another one happened: Past Continuous."],
+["B1","I can’t ___ up my mind which jacket to buy.","make","do","take","vocab","Collocation: make up your mind."],
+["B2","If I ___ more time, I would learn another language.","had","have","would have","cond","Second conditional: if + Past Simple, would + base verb."],
+["B2","By the time we arrived, the film ___.","had already started","already started","was already starting","tenses","Past Perfect: the film started before we arrived."],
+["B2","I wish I ___ speak French.","could","can","would","cond","After “wish” use a past form: I wish I could."],
+["B2","The new bridge ___ next year.","will be completed","will complete","completes","passive","Future passive: will be + past participle."],
+["B2","She suggested ___ a taxi.","taking","to take","take","patterns","suggest + -ing."],
+["B2","He denied ___ the window.","breaking","to break","break","patterns","deny + -ing."],
+["B2","I’m not used to ___ up so early.","getting","get","got","patterns","be used to + -ing (= I’m not accustomed to it)."],
+["B2","Her speech had a great ___ on the audience.","effect","affect","affection","vocab","“effect” is the noun; “affect” is the verb."],
+["B2","___ being tired, she finished the report.","Despite","Although","However","linking","Despite + -ing. “Although” needs a subject and a verb."],
+["C1","Hardly ___ the house when it started to rain.","had we left","we had left","did we leave","advanced","Inversion after “Hardly”: Hardly had we left…"],
+["C1","Had I known about the delay, I ___ earlier.","would have left","would leave","had left","cond","Third conditional (inverted): Had I known…, I would have + past participle."],
+["C1","The manager insisted that the report ___ by Friday.","be submitted","is submitted","was submitted","advanced","After “insisted that” we use the subjunctive: be + past participle."],
+["C1","He was reluctant ___ any details.","to give","giving","for giving","patterns","reluctant + to + base verb."],
+["C1","No sooner ___ sat down than the phone rang.","had she","she had","did she","advanced","Inversion after “No sooner”: No sooner had she… than…"],
+["C1","The results were ___ with our expectations.","consistent","consisting","consistently","vocab","The adjective “consistent with” = matching."]
 ];
+const TOPICS={
+ basics:{n:"Basic sentence patterns (A2)",to:["grammar","g-past"],tip:"Revise the A2 basics (Present Simple -s, there is / there are, question forms). Write 5 short sentences about your day every morning and check them."},
+ tenses:{n:"Tenses (past, perfect, continuous)",to:["grammar","g-perf"],tip:"For each sentence, draw a quick timeline: finished, still true, or in progress? Then write 5 sentences about your week in Past Simple and 5 in Present Perfect."},
+ cond:{n:"Conditionals and wishes",to:["grammar","g-cond"],tip:"Learn the formulas: 0 = if + present, present. 1 = if + present, will. 2 = if + past, would. 3 = if + had + V3, would have + V3. Write one sentence of each type about your own life every day."},
+ modal:{n:"Modal verbs (must, should, have to)",to:["grammar","g-mod"],tip:"Write one real rule for each: must, have to, should, mustn’t, don’t have to. Remember: mustn’t = forbidden; don’t have to = not necessary."},
+ patterns:{n:"Verb patterns (-ing or to)",to:["grammar","g-ing"],tip:"Keep a ‘verb + -ing / to’ notebook. Every time you learn a verb, write it with an example sentence. Test yourself with the two lists in the Grammar tab."},
+ rel:{n:"Relative clauses (who, which, that, whose)",to:["grammar","g-rel"],tip:"Join two short sentences into one with who / which / where / whose. Do 5 every day. Example: “I met a man. His car was stolen.” → “I met a man whose car was stolen.”"},
+ passive:{n:"Passive voice",to:["grammar","g-pass"],tip:"Turn 5 news headlines into passive sentences (be + past participle). Say each in three tenses: is built, was built, will be built."},
+ reported:{n:"Reported speech",to:["grammar","g-rep"],tip:"Retell one conversation you had today starting with “She said (that)…”. Move the tense one step back and change I → she/he."},
+ linking:{n:"Linking words",to:["grammar","g-link"],tip:"Use because / so / but / however / even though / despite in every speaking answer. Record a 1-minute answer and count how many linkers you used."},
+ comp:{n:"Comparatives",to:["grammar","g-comp"],tip:"Compare two cities or two phones in 6 sentences using -er and more … than. Remember the irregular ones: good → better, bad → worse."},
+ vocab:{n:"Word choice and collocations",to:["vocab",""],tip:"Learn words in whole phrases (make up your mind, tell someone the way). Use the Vocabulary flashcards for 10 minutes every day and tick the words you know."},
+ advanced:{n:"Advanced structures (C1)",to:["grammar","g-cond"],tip:"These are C1 structures (inversion such as ‘Hardly had…’, the subjunctive). They are optional at B2. Learn one new structure per week and write 3 examples."}
+};
 const TEXTS={
  A:{lvl:"B1",title:"A weekend in Lisbon",body:"Last month I spent a long weekend in Lisbon with my sister. We stayed in a small hotel near the river, which was cheaper than the ones in the centre. On the first day we took an old yellow tram to the castle, but it was so crowded that we decided to walk back. The views were beautiful, though my legs were tired by the evening. On Sunday we tried a famous cake called pastel de nata. My sister loved it, but I found it a bit too sweet. Next time, we want to stay a week so that we can visit the beaches as well."},
  B:{lvl:"B2",title:"Busy is not the same as productive",body:"Many people believe that being busy is the same as being productive. However, researchers who studied office workers found that those who checked their messages every few minutes needed almost twice as long to finish a task as those who switched notifications off for an hour. The problem is not that people are lazy; it is that every interruption forces the brain to refocus, which uses up energy. Some companies have responded by introducing “quiet hours”, when meetings and emails are discouraged. Employees say they feel less stressed, although a few managers worry that urgent problems might be missed. The researchers suggest that the best solution is not to ban messages completely but to let people choose when they check them."}
 };
+/* [text, level, question, correct, wrong1, wrong2, why] */
 const READQ=[
-["A","B1","Where did the writer and the sister stay?","In a small hotel near the river","In a hotel in the centre","In a hostel by the beach"],
-["A","B1","Why did they walk back from the castle?","The tram was too crowded","The tram was broken","The tram was too expensive"],
-["A","B1","What did the writer think of the cake?","It was a bit too sweet","It was delicious","It was too expensive"],
-["A","B1","Why do they want to stay a week next time?","To visit the beaches","To see the castle again","To find a cheaper hotel"],
-["B","B2","What is the main idea of the text?","Constant interruptions make people less efficient","Lazy workers need stricter managers","Offices should ban all phones"],
-["B","B2","Who needed almost twice as long to finish a task?","Workers who checked messages often","Workers who turned notifications off","Managers who held meetings"],
-["B","B2","Why do interruptions cause problems?","The brain has to refocus, which uses energy","People become lazy","Messages are usually very long"],
-["B","B2","What worries a few managers about “quiet hours”?","Urgent problems might be missed","Employees may feel more stressed","Meetings will become longer"],
-["B","B2","What do the researchers recommend?","Letting people choose when to check messages","Banning messages completely","Holding more meetings"]
+["A","B1","Where did the writer and the sister stay?","In a small hotel near the river","In a hotel in the centre","In a hostel by the beach","The text says: “a small hotel near the river”, cheaper than the centre."],
+["A","B1","Why did they walk back from the castle?","The tram was too crowded","The tram was broken","The tram was too expensive","“it was so crowded that we decided to walk back”."],
+["A","B1","What did the writer think of the cake?","It was a bit too sweet","It was delicious","It was too expensive","“I found it a bit too sweet” (the sister loved it, the writer did not)."],
+["A","B1","Why do they want to stay a week next time?","To visit the beaches","To see the castle again","To find a cheaper hotel","“so that we can visit the beaches as well”."],
+["B","B2","What is the main idea of the text?","Constant interruptions make people less efficient","Lazy workers need stricter managers","Offices should ban all phones","The whole text is about how interruptions reduce efficiency. The other options are details or not stated."],
+["B","B2","Who needed almost twice as long to finish a task?","Workers who checked messages often","Workers who turned notifications off","Managers who held meetings","Those who checked messages every few minutes needed almost twice as long."],
+["B","B2","Why do interruptions cause problems?","The brain has to refocus, which uses energy","People become lazy","Messages are usually very long","“every interruption forces the brain to refocus, which uses up energy”."],
+["B","B2","What worries a few managers about “quiet hours”?","Urgent problems might be missed","Employees may feel more stressed","Meetings will become longer","“a few managers worry that urgent problems might be missed”."],
+["B","B2","What do the researchers recommend?","Letting people choose when to check messages","Banning messages completely","Holding more meetings","They suggest NOT banning messages but letting people choose when they check them."]
 ];
 const LIS={
- L1:{lvl:"A2",label:"Voicemail",text:"Hi Tom, it's Anna. I'm calling about Saturday. The film starts at seven thirty, not seven, so we can meet at the cinema at seven fifteen. I'll buy the tickets online, and you can pay me back later. See you there!"},
- L2:{lvl:"B1",label:"Station announcement",text:"Passengers for the ten forty to Manchester should note that the train will leave from platform six instead of platform two. The delay is due to a signal problem, and the train will depart approximately fifteen minutes late."},
- L3:{lvl:"B2",label:"Working from home",text:"I used to think working from home would be easy, but after six months I'm not so sure. At first I loved not having to commute. But I've realised I never really switch off. My laptop is always there, so I check emails at ten at night. I'd actually prefer to go to the office two days a week, just to keep a clear line between work and home."}
+ L1:{lvl:"B1",title:"An interview about listening skills",url:BC+"b1/interview-about-listening-skills",tip:"Level: intermediate. An English teacher talks about how to improve listening."},
+ L2:{lvl:"B2",title:"Joining a gym",url:BC+"b2/joining-gym",tip:"A conversation between a gym receptionist and a customer."},
+ L3:{lvl:"B2",title:"Office party planning",url:BC+"b2/office-party-planning",tip:"A phone call between a colleague and an event planner."}
 };
+/* [set, level, question, correct, wrong1, wrong2, why] */
 const LISQ=[
-["L1","A2","What time will they meet?","7:15","7:00","7:30"],
-["L1","A2","Who will buy the tickets?","Anna","Tom","Nobody"],
-["L2","B1","Which platform does the train leave from?","Platform six","Platform two","Platform ten"],
-["L2","B1","Why is the train late?","A signal problem","Bad weather","A strike"],
-["L3","B2","How does she feel about working from home now?","She is not sure it is easy","She loves it completely","She hates it"],
-["L3","B2","What problem does she describe?","She cannot separate work and home","She dislikes commuting","Her laptop is slow"],
-["L3","B2","What does she prefer?","Two days in the office","Working at home always","The office every day"]
+["L1","B1","What does the presenter say about their own listening?","It is their weakest area","It is their strongest skill","They never practise listening","The presenter says listening is the area they find difficult."],
+["L1","B1","Why does the teacher say listening in exams is different from real life?","In exams you hear it only once or twice, but in conversations you can ask for repetition","Exams always use faster speakers","Real conversations are always shorter","Exams allow one or two listens; in real conversations you can ask the person to repeat."],
+["L1","B1","What strategy does the teacher suggest for a real conversation?","Summarise what you heard, starting as a question","Ask the speaker to speak much louder","Translate every word in your head","She suggests summarising what was said, for example starting with a question."],
+["L1","B1","What does she say you should do with a listening problem?","Break it down into smaller questions","Ask the same question again and again","Avoid difficult conversations","She says: break it down into smaller questions so the other person answers them."],
+["L2","B2","What does the receptionist say about fees?","There are no sign-up or cancellation fees","Cancelling the membership costs extra","There is a sign-up fee but no monthly fee","The gym has no sign-up fee and no cancellation fee."],
+["L2","B2","When is the gym open?","From 5 a.m. to midnight","24 hours a day","From 9 a.m. to 9 p.m.","It is open from 5 a.m. to midnight, not 24 hours."],
+["L2","B2","What do the personal trainers do for free?","Design a plan and give nutrition advice","Train members for an hour every day","Only show members where the equipment is","The trainers design a plan and give nutrition advice free; extra sessions cost more."],
+["L2","B2","How does the conversation end?","The customer accepts a free day pass","The customer joins immediately","The customer refuses to visit","The customer accepts the offer of a free day pass."],
+["L3","B2","Why can’t the baby grand piano be used?","It is too wide for the entrance","It is too expensive to rent","It is too heavy for the floor","The planner says it is too wide for the entrance doorway."],
+["L3","B2","Why is lifting the piano to the balcony not possible?","It would need a crane and extra insurance, costing far more than the budget allows","The piano would be damaged by rain","Nobody can play on a balcony","A crane and extra insurance would cost far more than the small increase allowed."],
+["L3","B2","What does the event planner suggest?","An upright piano that fits through the ground-floor door","A smaller electronic keyboard","Holding the party in another building","He suggests an upright piano that fits through the ground-floor door."],
+["L3","B2","What does Ayako do at the end?","She asks for photos and says she will call back","She books the piano at once","She cancels the party","She asks for photos and says she will call back later."]
 ];
 const ALLQ=[
- ...GV.map((r,i)=>({id:"gv"+i,p:"gv",l:r[0],q:r[1],o:r.slice(2)})),
- ...READQ.map((r,i)=>({id:"rd"+i,p:"read",t:r[0],l:r[1],q:r[2],o:r.slice(3)})),
- ...LISQ.map((r,i)=>({id:"ls"+i,p:"listen",t:r[0],l:r[1],q:r[2],o:r.slice(3)}))
+ ...GV.map((r,i)=>({id:"gv"+i,p:"gv",l:r[0],q:r[1],o:[r[2],r[3],r[4]],topic:r[5],why:r[6]})),
+ ...READQ.map((r,i)=>({id:"rd"+i,p:"read",t:r[0],l:r[1],q:r[2],o:[r[3],r[4],r[5]],topic:"reading",why:r[6]})),
+ ...LISQ.map((r,i)=>({id:"ls"+i,p:"listen",t:r[0],l:r[1],q:r[2],o:[r[3],r[4],r[5]],topic:"listening",why:r[6]}))
 ];
-const RUB=[
- {k:"gram",name:"Grammar & vocabulary",d:{A2:"Simple sentences and basic words. Many errors, but the meaning is clear.",B1:"Mostly correct everyday grammar. Errors with complex structures. Enough words for familiar topics.",B2:"Good control. A range of structures and vocabulary. Errors rarely cause misunderstanding.",C1:"Wide, flexible range. Only occasional slips."}},
- {k:"disc",name:"Organising ideas (discourse)",d:{A2:"Short separate sentences joined with “and / but”.",B1:"Connected speech using because / so / however. Some hesitation.",B2:"Long, well-organised answers with a variety of linking words.",C1:"Fluent, well-structured, natural flow."}},
- {k:"pron",name:"Pronunciation",d:{A2:"Often hard to understand. The listener needs patience.",B1:"Generally clear. Some first-language influence and word-stress errors.",B2:"Clear, natural stress and intonation. Accent does not distract.",C1:"Very clear and natural throughout."}},
- {k:"inter",name:"Interaction",d:{A2:"Answers simple questions. Often needs repetition.",B1:"Keeps a simple conversation going. Asks basic questions.",B2:"Starts topics, responds, develops ideas, repairs misunderstandings.",C1:"Engages naturally and adapts to the other speaker."}},
- {k:"writ",name:"Writing task",d:{A2:"Short, simple sentences. Basic spelling errors.",B1:"Clear, connected paragraph. Some errors but understandable.",B2:"Well-organised text with a good range and few errors.",C1:"Clear, detailed, well-structured and natural."}}
-];
-const NUM={A2:2,B1:3,B2:4,C1:5}, NAME={1:"A1",2:"A2",3:"B1",4:"B2",5:"C1"};
+const SKILLS={gv:"Grammar & vocabulary",read:"Reading",listen:"Listening"};
+const SKILLTIPS={
+ read:"Read the questions first, then the text. Underline keywords. For “why” questions look for because / so / although. Read one B1–B2 article a day (British Council LearnEnglish → Reading) and summarise it in two sentences.",
+ listen:"Listen three times: (1) the main idea, (2) the details, (3) with the transcript. Write down 5 new words. Then ‘shadow’ one minute aloud, copying the speaker. Practise on British Council LearnEnglish → Listening (B1 and B2)."
+};
+const NEXTSTEP={
+ 1:"To reach A2: learn present and past simple, common irregular verbs and everyday vocabulary.",
+ 2:"To reach B1: master past and perfect tenses, first conditional, modal verbs and linking words (because, but, so).",
+ 3:"To reach B2: master second and third conditionals, passive voice, reported speech and the full range of linking words. Read and listen to longer authentic texts.",
+ 4:"To reach C1: use advanced structures (inversion, subjunctive), idioms and precise vocabulary, and follow fast native speech.",
+ 5:"Keep widening range and precision: idioms, collocations, formal and informal registers."
+};
+const NUM={A2:2,B1:3,B2:4,C1:5}, NAME={1:"A1",2:"A2",3:"B1",4:"B2",5:"C1"}, LVLS=["A2","B1","B2","C1"];
 const lvlLabel=v=>{const b=Math.floor(v+1e-9);return (b<2?"Below A2":NAME[Math.min(b,5)])+(v-b>=.5-1e-9&&b>=2&&b<5?"+":"")};
-let tAns=store.get("tAns",{}), tRub=store.get("tRub",{}), tPart="gv", plays={};
-const esc=s=>String(s).replace(/"/g,"&quot;");
-const PARTS=[["gv","1 · Grammar & vocabulary"],["read","2 · Reading"],["listen","3 · Listening"],["speak","4 · Speaking & writing (teacher)"],["result","📊 Result"]];
+let tAns=store.get("tAns2",{}), tPart="gv";
+const esc=s=>String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const PARTS=[["gv","1 · Grammar & vocabulary"],["read","2 · Reading"],["listen","3 · Listening"],["result","📊 Result & breakdown"]];
+const isOK=q=>tAns[q.id]===q.o[0];
 const ans=p=>ALLQ.filter(q=>q.p===p&&tAns[q.id]!==undefined).length, tot=p=>ALLQ.filter(q=>q.p===p).length;
 function qHTML(it,n){return `<div class="tq"><div class="qt">${n}. ${it.q.replace("___","<b>_____</b>")}</div><div class="opts">${shuffle(it.o).map(o=>`<label class="topt"><input type="radio" name="${it.id}" value="${esc(o)}" ${tAns[it.id]===o?"checked":""}><span>${o}</span></label>`).join("")}</div></div>`}
+
 function receptive(){
   const lv={A2:[0,0],B1:[0,0],B2:[0,0],C1:[0,0]};let done=0;
-  ALLQ.forEach(q=>{lv[q.l][1]++;if(tAns[q.id]!==undefined)done++;if(tAns[q.id]===q.o[0])lv[q.l][0]++});
+  ALLQ.forEach(q=>{lv[q.l][1]++;if(tAns[q.id]!==undefined)done++;if(isOK(q))lv[q.l][0]++});
   const pct=l=>lv[l][0]/lv[l][1];let base=1;
-  for(const l of ["A2","B1","B2","C1"]){if(pct(l)>=.6)base=NUM[l];else break}
-  const next=["A2","B1","B2","C1"][base-1];let plus=false;
+  for(const l of LVLS){if(pct(l)>=.6)base=NUM[l];else break}
+  const next=LVLS[base-1];let plus=false;
   if(next&&base>=2&&pct(next)>=.35)plus=true;
-  return {lv,pct,value:base+(plus?.5:0),done,total:ALLQ.length};
+  return {lv,pct,base,plus,value:base+(plus?.5:0),done,total:ALLQ.length};
 }
-function productive(){const v=RUB.map(r=>NUM[tRub[r.k]]).filter(Boolean);return v.length?{value:v.reduce((a,b)=>a+b,0)/v.length,n:v.length}:null}
+function analyse(){
+  const r=receptive(),topics={};
+  ALLQ.filter(q=>q.p==="gv").forEach(q=>{const t=topics[q.topic]||(topics[q.topic]={k:q.topic,r:0,t:0,wrong:[]});t.t++;if(isOK(q))t.r++;else t.wrong.push(q)});
+  const list=Object.values(topics);
+  const later=list.filter(t=>t.k==="advanced"&&r.base<4&&t.r<t.t);
+  const needs=list.filter(t=>t.r/t.t<.6&&!later.includes(t)).sort((a,b)=>b.wrong.length-a.wrong.length||NUM[a.wrong[0].l]-NUM[b.wrong[0].l]);
+  const almost=list.filter(t=>t.r/t.t>=.6&&t.r<t.t&&!later.includes(t));
+  const strong=list.filter(t=>t.r===t.t);
+  const skills=["gv","read","listen"].map(k=>{const qs=ALLQ.filter(q=>q.p===k),right=qs.filter(isOK).length,pc=Math.round(right/qs.length*100);return {k,name:SKILLS[k],right,of:qs.length,pct:pc,verdict:pc>=75?"Strong":pc>=60?"OK":"Needs work"}});
+  const wrong=ALLQ.filter(q=>!isOK(q));
+  const why=[];const base=r.base;
+  if(base<2)why.push("She scored below 60% on the A2 questions, so her result is below A2.");
+  else why.push(`She passed ${LVLS.filter(l=>NUM[l]<=base).join(", ")} (60% or more correct at each level), so ${NAME[base]} is her secure level.`);
+  if(base<5){const nx=LVLS[base-1];why.push(`At ${nx} she scored ${Math.round(r.pct(nx)*100)}%, below the 60% pass mark, so ${nx} is not secure yet.`+(r.plus?` She got at least 35% of the ${nx} questions right, so the result is shown as “${lvlLabel(r.value)}” (stronger than a plain ${NAME[base]}).`:""));
+    const odd=LVLS.filter(l=>NUM[l]>NUM[nx]&&r.pct(l)>=.6);
+    if(odd.length)why.push(`Note: she scored 60% or more at ${odd.join(", ")} even though she missed the pass mark at ${nx}. This usually means careless mistakes or lucky guesses, so the result may be a little low or high. Review the mistakes below.`);}
+  if(r.done<r.total)why.push(`Only ${r.done} of ${r.total} questions were answered. Unanswered questions count as wrong, so the real level may be higher.`);
+  const weakSkills=skills.filter(s=>s.k!=="gv"&&s.pct<60);
+  const plan=[];
+  needs.slice(0,3).forEach(t=>plan.push({title:TOPICS[t.k].n,tip:TOPICS[t.k].tip,to:TOPICS[t.k].to}));
+  weakSkills.forEach(s=>plan.push({title:s.name,tip:SKILLTIPS[s.k],to:null}));
+  if(plan.length<3)almost.slice(0,3-plan.length).forEach(t=>plan.push({title:TOPICS[t.k].n+" (almost there)",tip:TOPICS[t.k].tip,to:TOPICS[t.k].to}));
+  return {r,needs,almost,strong,later,skills,wrong,why,plan,next:NEXTSTEP[Math.min(5,Math.max(1,Math.floor(r.value+1e-9)))]};
+}
+function reportText(a,nm){
+  const L=[];
+  L.push("LEVEL: "+lvlLabel(a.r.value)+" (grammar, reading and listening)");
+  L.push("");L.push("WHY THIS LEVEL");a.why.forEach(w=>L.push("- "+w));
+  L.push("");L.push("SCORE BY LEVEL (60% = pass)");
+  LVLS.forEach(l=>L.push(`  ${l}: ${Math.round(a.r.pct(l)*100)}%  (${a.r.lv[l][0]}/${a.r.lv[l][1]})`));
+  L.push("");L.push("SCORE BY SKILL");
+  a.skills.forEach(s=>L.push(`  ${s.name}: ${s.right}/${s.of} = ${s.pct}%  (${s.verdict})`));
+  L.push("");L.push("GRAMMAR TOPICS");
+  a.needs.forEach(t=>L.push(`  NEEDS WORK  ${TOPICS[t.k].n}: ${t.r}/${t.t}`));
+  a.almost.forEach(t=>L.push(`  almost     ${TOPICS[t.k].n}: ${t.r}/${t.t}`));
+  a.strong.forEach(t=>L.push(`  strong     ${TOPICS[t.k].n}: ${t.r}/${t.t}`));
+  a.later.forEach(t=>L.push(`  later (above her level)  ${TOPICS[t.k].n}: ${t.r}/${t.t}`));
+  L.push("");L.push("WHAT TO IMPROVE AND HOW");
+  if(!a.plan.length)L.push("  No clear weak areas. Move on to the next level target below.");
+  a.plan.forEach((p,i)=>{L.push(`${i+1}. ${p.title}`);L.push(`   ${p.tip}`)});
+  L.push("");L.push("NEXT LEVEL: "+a.next);
+  L.push("");L.push("MISTAKES, EXPLAINED ("+a.wrong.length+")");
+  a.wrong.forEach((q,i)=>{L.push(`${i+1}. [${q.l}] ${q.q.replace("___","_____")}`);L.push(`   her answer: ${tAns[q.id]??"(no answer)"}  |  correct: ${q.o[0]}`);L.push(`   why: ${q.why}`)});
+  return L.join("\n");
+}
 function renderTest(){
-  $("#tTabs").innerHTML=PARTS.map(([id,t])=>{const c=(id==="gv"||id==="read"||id==="listen")?` (${ans(id)}/${tot(id)})`:"";return `<button class="chip ${tPart===id?"on":""}" data-t="${id}">${t}${c}</button>`}).join("");
+  $("#tTabs").innerHTML=PARTS.map(([id,t])=>{const c=(id==="result")?"":` (${ans(id)}/${tot(id)})`;return `<button class="chip ${tPart===id?"on":""}" data-t="${id}">${t}${c}</button>`}).join("");
   let h="";
-  if(tPart==="gv"){h=`<div class="card"><h3>Part 1: Grammar &amp; vocabulary</h3><p class="lead">Choose the best word or phrase for each gap. 30 questions · about 10 minutes.</p>${ALLQ.filter(q=>q.p==="gv").map((q,i)=>qHTML(q,i+1)).join("")}</div>`}
+  if(tPart==="gv")h=`<div class="card"><h3>Part 1: Grammar &amp; vocabulary</h3><p class="lead">Choose the best word or phrase for each gap. 30 questions · about 10 minutes. Don’t use a dictionary or translator.</p>${ALLQ.filter(q=>q.p==="gv").map((q,i)=>qHTML(q,i+1)).join("")}</div>`;
   if(tPart==="read"){let n=0;h=Object.entries(TEXTS).map(([k,t])=>`<div class="card" style="margin-bottom:14px"><div class="passage"><h3>${t.title}</h3><p style="margin:0">${t.body}</p></div>${ALLQ.filter(q=>q.t===k&&q.p==="read").map(q=>qHTML(q,++n)).join("")}</div>`).join("")}
-  if(tPart==="listen"){let n=0;h=`<div class="note blue">Press ▶ to listen (you can play each recording <b>2 times</b>). The voice comes from your browser. If you hear nothing, check the volume, or let the teacher read the transcript aloud.</div>`+Object.entries(LIS).map(([k,t])=>`<div class="card" style="margin-bottom:14px"><h3>🎧 ${t.label}</h3><button class="btn pri" data-play="${k}">▶ Play</button> <span class="date" id="pl-${k}">${2-(plays[k]||0)} plays left</span>${ALLQ.filter(q=>q.t===k&&q.p==="listen").map(q=>qHTML(q,++n)).join("")}<details style="margin-top:8px"><summary class="date" style="cursor:pointer">Transcript (teacher / after the test)</summary><p>${t.text}</p></details></div>`).join("")}
-  if(tPart==="speak"){h=`<div class="card"><h3>Part 4: Speaking &amp; writing (teacher marks)</h3>
-    <p>Speaking and writing cannot be scored automatically, so the teacher rates them. Ask 2–3 prompts, then pick the level that best matches what you heard or read.</p>
-    <div class="grid g2"><div><h4>🗣️ Speaking prompts</h4><ul class="tidy"><li><b>A2:</b> Describe your typical day.</li><li><b>B1:</b> Tell me about a trip you enjoyed. What did you like most?</li><li><b>B2:</b> Do you think social media does more good than harm? Why?</li><li><b>C1:</b> Should companies allow staff to work from home permanently? Discuss advantages and disadvantages.</li></ul></div>
-    <div><h4>✍️ Writing prompts (15 min)</h4><ul class="tidy"><li><b>B1:</b> Write an email (80–100 words) to a friend about your plans for the weekend.</li><li><b>B2:</b> Write 150 words: “Is it better to live in a big city or a small town?”</li></ul></div></div>
-    <h4 style="margin-top:14px">Rate Dinara</h4>
-    ${RUB.map(r=>`<div><b>${r.name}</b><select class="tsel" data-rub="${r.k}"><option value="">— choose level —</option>${["A2","B1","B2","C1"].map(l=>`<option value="${l}" ${tRub[r.k]===l?"selected":""}>${l}: ${r.d[l]}</option>`).join("")}</select></div>`).join("")}</div>`}
+  if(tPart==="listen"){let n=0;h=`<div class="note blue"><b>How this part works:</b> the recordings are from the British Council LearnEnglish website. Press the button to open each one in a new tab, listen (<b>maximum 2 times</b>), then come back and answer. <b>Do not</b> open the transcript or the tasks on that page until you have finished.</div>`+Object.entries(LIS).map(([k,t])=>`<div class="card" style="margin-bottom:14px"><h3>🎧 ${t.title}</h3><p class="date" style="margin-top:-6px">${t.tip}</p><a class="btn pri" href="${t.url}" target="_blank" rel="noopener">▶ Open recording on British Council ↗</a>${ALLQ.filter(q=>q.t===k&&q.p==="listen").map(q=>qHTML(q,++n)).join("")}</div>`).join("")}
   if(tPart==="result")h=renderResult();
   $("#tBody").innerHTML=h;
 }
 function renderResult(){
-  const r=receptive(),p=productive();
-  const parts=["gv","read","listen"].map(k=>{const q=ALLQ.filter(x=>x.p===k);return [k,q.filter(x=>tAns[x.id]===x.o[0]).length,q.length]});
-  const names={gv:"Grammar & vocabulary",read:"Reading",listen:"Listening"};
-  const overall=p?(r.value+p.value)/2:r.value;
+  const a=analyse(),r=a.r,hist=store.get("tHist",[]);
   const warn=r.done<r.total?`<div class="note red">⚠ Only ${r.done} of ${r.total} questions answered. Unanswered questions count as wrong, so the result may be too low.</div>`:"";
-  let hist=store.get("tHist",[]);
-  return `${warn}<div class="card"><p class="date">RECEPTIVE SKILLS (grammar, reading, listening)</p><div class="big">${lvlLabel(r.value)}</div>
-   <div style="margin:14px 0">${["A2","B1","B2","C1"].map(l=>{const pc=Math.round(r.pct(l)*100);return `<div class="bar"><b>${l}</b><div class="track"><div class="fill ${pc<60?"fail":""}" style="width:${pc}%"></div><div class="mark" title="60% pass mark"></div></div><span>${pc}%</span></div>`}).join("")}<p class="date">Line = 60% pass mark for a level.</p></div>
-   <div class="grid g3">${parts.map(([k,a,b])=>`<div class="card"><b>${names[k]}</b><p class="big" style="font-size:1.8rem">${a}/${b}</p></div>`).join("")}</div></div>
-   <div class="card" style="margin-top:14px"><p class="date">PRODUCTIVE SKILLS (speaking &amp; writing, teacher rating)</p>${p?`<div class="big">${lvlLabel(p.value)}</div><p class="date">${p.n} of ${RUB.length} criteria rated</p>`:`<p>Not rated yet. Go to <b>Part 4</b> to rate speaking and writing.</p>`}</div>
-   <div class="card" style="margin-top:14px;border-color:var(--brand)"><p class="date">OVERALL ESTIMATE</p><div class="big">${lvlLabel(overall)}</div>
-   <p>${overallAdvice(overall,r,p)}</p>
-   <div class="note green" style="margin-top:12px"><b>Finished?</b> Press the button to send your result to your teacher by email.
+  const vcls=v=>v==="Strong"?"g":v==="OK"?"b":"r";
+  const topicRow=(t,cls,label)=>`<div class="trow"><span class="pill ${cls}">${label}</span> <b>${TOPICS[t.k].n}</b> <span class="date">${t.r}/${t.t}</span></div>`;
+  return `${warn}
+  <div class="card"><p class="date">YOUR LEVEL</p><div class="big">${lvlLabel(r.value)}</div>
+   <div style="margin:14px 0">${LVLS.map(l=>{const pc=Math.round(r.pct(l)*100);return `<div class="bar"><b>${l}</b><div class="track"><div class="fill ${pc<60?"fail":""}" style="width:${pc}%"></div><div class="mark" title="60% pass mark"></div></div><span>${pc}%</span></div>`}).join("")}<p class="date">The line marks the 60% pass mark for each level.</p></div></div>
+
+  <div class="card" style="margin-top:14px"><h3>🔎 Why this level?</h3><ul class="tidy">${a.why.map(w=>`<li>${w}</li>`).join("")}</ul></div>
+
+  <div class="card" style="margin-top:14px"><h3>📏 Your skills</h3>
+   ${a.skills.map(s=>`<div class="bar"><b style="grid-column:1;font-size:.85rem;line-height:1.2">${s.name}</b><div class="track"><div class="fill ${s.pct<60?"fail":""}" style="width:${s.pct}%"></div><div class="mark"></div></div><span>${s.pct}%</span></div><div style="margin:-2px 0 6px 54px"><span class="pill ${vcls(s.verdict)}">${s.verdict}</span> <span class="date">${s.right} of ${s.of} correct</span></div>`).join("")}</div>
+
+  <div class="card" style="margin-top:14px"><h3>🧩 Grammar topics</h3>
+   ${a.needs.map(t=>topicRow(t,"r","Needs work")).join("")}${a.almost.map(t=>topicRow(t,"b","Almost there")).join("")}${a.strong.map(t=>topicRow(t,"g","Strong")).join("")}${a.later.map(t=>topicRow(t,"b","Later (above your level)")).join("")}</div>
+
+  <div class="card" style="margin-top:14px;border-color:var(--brand)"><h3>🎯 What to improve, and how</h3>
+   ${a.plan.length?a.plan.map((p,i)=>`<div class="tq"><b>${i+1}. ${p.title}</b><p style="margin:.3em 0">${p.tip}</p>${p.to?`<button class="btn" data-jump="${p.to[0]}:${p.to[1]}">Study this →</button>`:""}</div>`).join(""):`<p>No clear weak areas. Great work!</p>`}
+   <div class="note green"><b>Next level:</b> ${a.next}</div>
+   <p class="date">Suggested 4-week plan: weeks 1–3, one focus area per week (about 15 minutes a day). Week 4: retake this test.</p></div>
+
+  <div class="card" style="margin-top:14px"><h3>✏️ Your mistakes, explained (${a.wrong.length})</h3>
+   ${a.wrong.length?a.wrong.map((q,i)=>`<div class="tq"><div class="qt">${i+1}. ${q.q.replace("___","<b>_____</b>")}</div><div>Your answer: <span class="no">${esc(tAns[q.id]??"(no answer)")}</span> &nbsp; Correct: <span class="ok">${esc(q.o[0])}</span></div><div class="date" style="margin-top:4px">💡 ${q.why}</div></div>`).join(""):`<p>No mistakes. Perfect score! 🎉</p>`}</div>
+
+  <div class="note green" style="margin-top:14px"><b>Finished?</b> Press the button to send your result and breakdown to your teacher by email.
      <div class="toolbar" style="margin:8px 0 0"><input type="text" class="tsel" id="tName" style="max-width:220px;margin:0" value="${esc(store.get("tName","Dinara"))}" aria-label="Your name"><button class="btn pri" data-act="send">✅ Finish &amp; send to my teacher</button></div>
      <div class="date" id="sendStatus" role="status"></div></div>
-   <div class="toolbar"><button class="btn pri" data-act="save">💾 Save this result</button><button class="btn" data-act="reset">🔄 Start a new test</button></div></div>
-   ${hist.length?`<div class="card" style="margin-top:14px"><h4>📈 Saved results</h4>${hist.slice(-6).reverse().map(x=>`<div class="hist">${x.d} · overall <b>${x.o}</b> · receptive ${x.r} · productive ${x.p}</div>`).join("")}</div>`:""}`;
+  <div class="toolbar"><button class="btn pri" data-act="save">💾 Save this result</button><button class="btn" data-act="reset">🔄 Start a new test</button></div>
+  ${hist.length?`<div class="card" style="margin-top:14px"><h4>📈 Saved results</h4>${hist.slice(-6).reverse().map(x=>`<div class="hist">${x.d} · level <b>${x.r||x.o}</b></div>`).join("")}</div>`:""}`;
 }
-function overallAdvice(v,r,p){
-  const gap=p?Math.abs(r.value-p.value):0;
-  let s={2:"Focus on core tenses, everyday vocabulary and short daily speaking practice.",3:"Focus on linking words, past and perfect tenses, and speaking in longer answers.",4:"Focus on conditionals, passive, phrasal verbs and developing opinions with examples.",5:"Focus on precision, idiomatic phrases and complex structures."}[Math.min(5,Math.max(2,Math.floor(v+1e-9)))];
-  if(p&&gap>=1)s+=` There is a gap between receptive (${lvlLabel(r.value)}) and productive (${lvlLabel(p.value)}) skills, so ${r.value>p.value?"she understands more than she can say: add speaking and writing practice.":"her output is stronger than her accuracy on tests: review grammar and reading."}`;
-  return s;
-}
-const NOTIFY_URL="https://script.google.com/macros/s/AKfycbxOzVrn_I4pnxOGOJvk0mIMZCQPp7sBkAnmaIIAD2RtxsDAdiPmTfmTpswCEha72_Gc/exec"; // paste your Google Apps Script Web app URL here (see apps-script/SETUP.md)
+const NOTIFY_URL="https://script.google.com/macros/s/AKfycbxOzVrn_I4pnxOGOJvk0mIMZCQPp7sBkAnmaIIAD2RtxsDAdiPmTfmTpswCEha72_Gc/exec"; // Google Apps Script Web app URL (emails the teacher)
 function resultPayload(){
-  const r=receptive(),nm=($("#tName")?.value||"Dinara").trim()||"Dinara";store.set("tName",nm);
-  const names={gv:"Grammar & vocabulary",read:"Reading",listen:"Listening"};
+  const a=analyse(),r=a.r,nm=($("#tName")?.value||"Dinara").trim()||"Dinara";store.set("tName",nm);
   return {name:nm,when:new Date().toLocaleString("en-GB"),receptive:lvlLabel(r.value),answered:r.done,total:r.total,
-    levels:["A2","B1","B2","C1"].map(l=>({level:l,pct:Math.round(r.pct(l)*100),right:r.lv[l][0],of:r.lv[l][1]})),
-    parts:["gv","read","listen"].map(k=>{const q=ALLQ.filter(x=>x.p===k);return {name:names[k],right:q.filter(x=>tAns[x.id]===x.o[0]).length,of:q.length}}),
-    wrong:ALLQ.filter(q=>tAns[q.id]!==q.o[0]).map(q=>({level:q.l,q:q.q,her:tAns[q.id]??"(no answer)",correct:q.o[0]}))};
+    levels:LVLS.map(l=>({level:l,pct:Math.round(r.pct(l)*100),right:r.lv[l][0],of:r.lv[l][1]})),
+    parts:a.skills.map(s=>({name:s.name,right:s.right,of:s.of})),
+    wrong:a.wrong.slice(0,60).map(q=>({level:q.l,q:q.q,her:tAns[q.id]??"(no answer)",correct:q.o[0]})),
+    report:reportText(a,nm)};
 }
 async function sendResult(){
   const st=$("#sendStatus"),p=resultPayload();
-  const copy=()=>{try{navigator.clipboard.writeText(`${p.name}: level ${p.receptive} (${p.levels.map(l=>l.level+" "+l.pct+"%").join(", ")}), answered ${p.answered}/${p.total}`);return " The result was copied. You can paste it to your teacher."}catch(e){return ""}};
-  if(!NOTIFY_URL){st.textContent="Email is not set up yet."+copy();return}
+  const copy=()=>{try{navigator.clipboard.writeText(p.name+"\n"+p.report);return " The full result was copied. You can paste it to your teacher."}catch(e){return ""}};
+  if(!NOTIFY_URL||NOTIFY_URL.startsWith("__")){st.textContent="Email is not set up yet."+copy();return}
   st.textContent="Sending…";
   try{
     await fetch(NOTIFY_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(p)});
@@ -970,20 +1047,15 @@ async function sendResult(){
 function setPart(x){tPart=x;renderTest();window.scrollTo({top:$("#tTabs").offsetTop-80,behavior:"smooth"})}
 $("#tTabs").addEventListener("click",e=>{const c=e.target.closest(".chip");if(c)setPart(c.dataset.t)});
 $("#tBody").addEventListener("change",e=>{
-  if(e.target.type==="radio"){tAns[e.target.name]=e.target.value;store.set("tAns",tAns);const c=[...$$("#tTabs .chip")].find(x=>x.dataset.t===tPart);if(c){const k=tPart;c.textContent=PARTS.find(x=>x[0]===k)[1]+` (${ans(k)}/${tot(k)})`}}
-  if(e.target.dataset.rub!==undefined){tRub[e.target.dataset.rub]=e.target.value;store.set("tRub",tRub)}
+  if(e.target.type==="radio"){tAns[e.target.name]=e.target.value;store.set("tAns2",tAns);const c=[...$$("#tTabs .chip")].find(x=>x.dataset.t===tPart);if(c){const k=tPart;c.textContent=PARTS.find(x=>x[0]===k)[1]+` (${ans(k)}/${tot(k)})`}}
 });
 $("#tBody").addEventListener("click",e=>{
-  const pl=e.target.closest("[data-play]");
-  if(pl){const k=pl.dataset.play;if((plays[k]||0)>=2)return;
-    if(!("speechSynthesis" in window)){alert("This browser cannot read aloud. Please read the transcript to Dinara instead.");return}
-    plays[k]=(plays[k]||0)+1;const u=new SpeechSynthesisUtterance(LIS[k].text);
-    const v=speechSynthesis.getVoices().find(v=>/^en[-_](GB|US)/i.test(v.lang));if(v)u.voice=v;u.lang=v?v.lang:"en-GB";u.rate=.92;
-    speechSynthesis.cancel();speechSynthesis.speak(u);$("#pl-"+k).textContent=(2-plays[k])+" plays left";return}
+  const j=e.target.closest("[data-jump]");
+  if(j){const [tab,id]=j.dataset.jump.split(":");go(tab);if(id)setTimeout(()=>{const t=document.getElementById(id);if(t)window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})},80);return}
   const a=e.target.closest("[data-act]");if(!a)return;
   if(a.dataset.act==="send")sendResult();
-  if(a.dataset.act==="save"){const r=receptive(),p=productive();const h=store.get("tHist",[]);h.push({d:new Date().toLocaleDateString("en-GB"),o:lvlLabel(p?(r.value+p.value)/2:r.value),r:lvlLabel(r.value),p:p?lvlLabel(p.value):"–"});store.set("tHist",h);renderTest()}
-  if(a.dataset.act==="reset"&&confirm("Clear all answers and start a new test?")){tAns={};tRub={};plays={};store.set("tAns",{});store.set("tRub",{});tPart="gv";renderTest()}
+  if(a.dataset.act==="save"){const r=receptive();const h=store.get("tHist",[]);h.push({d:new Date().toLocaleDateString("en-GB"),r:lvlLabel(r.value)});store.set("tHist",h);renderTest()}
+  if(a.dataset.act==="reset"&&confirm("Clear all answers and start a new test?")){tAns={};store.set("tAns2",{});tPart="gv";renderTest()}
 });
 renderTest();
 
