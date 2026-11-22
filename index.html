@@ -143,6 +143,18 @@ table.t th{background:var(--brand-soft)}
 .big{font-size:3rem;font-weight:800;color:var(--brand);line-height:1.1}
 .tsel{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;margin:6px 0}
 .hist{font-size:.92rem;color:var(--muted)}
+.topt.right input:checked+span{background:var(--good-soft);border-color:var(--good);color:var(--good);font-weight:700}
+.topt.wrong input:checked+span{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700}
+.topt input:disabled+span{cursor:default}
+.tnav{position:sticky;bottom:0;z-index:15;margin:14px -16px 0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.08)}
+.tnav-in{max-width:1000px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.tnav-info{font-weight:600;font-size:.95rem} .tnav-btns{display:flex;gap:8px;flex-wrap:wrap}
+.modalBack{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:60;padding:16px}
+.modal{background:var(--card);color:var(--ink);border-radius:14px;width:min(100%,520px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.mhead{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);font-size:1.1rem}
+.mx{border:0;background:none;color:var(--ink);font-size:1.6rem;line-height:1;cursor:pointer}
+.mbody{padding:20px} .fbscore{font-size:1.25rem;margin:0 0 .6em}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:0 20px 18px}
 .pill.g{background:var(--good-soft);color:var(--good)} .pill.r{background:var(--bad-soft);color:var(--bad)}
 .trow{padding:6px 0;border-top:1px solid var(--line)} .trow:first-of-type{border-top:0}
 footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:.85rem}
@@ -924,12 +936,19 @@ const NEXTSTEP={
 };
 const NUM={A2:2,B1:3,B2:4,C1:5}, NAME={1:"A1",2:"A2",3:"B1",4:"B2",5:"C1"}, LVLS=["A2","B1","B2","C1"];
 const lvlLabel=v=>{const b=Math.floor(v+1e-9);return (b<2?"Below A2":NAME[Math.min(b,5)])+(v-b>=.5-1e-9&&b>=2&&b<5?"+":"")};
-let tAns=store.get("tAns2",{}), tPart="gv";
+let tAns=store.get("tAns2",{}), tDone=store.get("tDone2",{}), tPart="gv"; const ordCache={};
 const esc=s=>String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;");
 const PARTS=[["gv","1 · Grammar & vocabulary"],["read","2 · Reading"],["listen","3 · Listening"],["result","📊 Result & breakdown"]];
 const isOK=q=>tAns[q.id]===q.o[0];
 const ans=p=>ALLQ.filter(q=>q.p===p&&tAns[q.id]!==undefined).length, tot=p=>ALLQ.filter(q=>q.p===p).length;
-function qHTML(it,n){return `<div class="tq"><div class="qt">${n}. ${it.q.replace("___","<b>_____</b>")}</div><div class="opts">${shuffle(it.o).map(o=>`<label class="topt"><input type="radio" name="${it.id}" value="${esc(o)}" ${tAns[it.id]===o?"checked":""}><span>${o}</span></label>`).join("")}</div></div>`}
+function qHTML(it,n){
+  const locked=!!tDone[it.p],chosen=tAns[it.id],ord=ordCache[it.id]||(ordCache[it.id]=shuffle(it.o));
+  const cls=o=>locked&&chosen===o?(o===it.o[0]?" right":" wrong"):"";
+  const ico=o=>locked&&chosen===o?(o===it.o[0]?" ✓":" ✗"):"";
+  const none=locked&&chosen===undefined?`<div class="no" style="margin-top:4px">✗ No answer</div>`:"";
+  return `<div class="tq"><div class="qt">${n}. ${it.q.replace("___","<b>_____</b>")}</div><div class="opts">${ord.map(o=>`<label class="topt${cls(o)}"><input type="radio" name="${it.id}" value="${esc(o)}" ${chosen===o?"checked":""} ${locked?"disabled":""}><span>${o}${ico(o)}</span></label>`).join("")}</div>${none}</div>`}
+const sectionScore=p=>{const qs=ALLQ.filter(q=>q.p===p),right=qs.filter(isOK).length;return {right,of:qs.length,pct:Math.round(right/qs.length*100)}};
+const chipLabel=([id,t])=>id==="result"?t:t+(tDone[id]?` · ${sectionScore(id).right}/${tot(id)} ✓`:` (${ans(id)}/${tot(id)})`);
 
 function receptive(){
   const lv={A2:[0,0],B1:[0,0],B2:[0,0],C1:[0,0]};let done=0;
@@ -962,10 +981,12 @@ function analyse(){
   needs.slice(0,3).forEach(t=>plan.push({title:TOPICS[t.k].n,tip:TOPICS[t.k].tip,to:TOPICS[t.k].to}));
   weakSkills.forEach(s=>plan.push({title:s.name,tip:SKILLTIPS[s.k],to:null}));
   if(plan.length<3)almost.slice(0,3-plan.length).forEach(t=>plan.push({title:TOPICS[t.k].n+" (almost there)",tip:TOPICS[t.k].tip,to:TOPICS[t.k].to}));
-  return {r,needs,almost,strong,later,skills,wrong,why,plan,next:NEXTSTEP[Math.min(5,Math.max(1,Math.floor(r.value+1e-9)))]};
+  const totalRight=ALLQ.filter(isOK).length,total={right:totalRight,of:ALLQ.length,pct:Math.round(totalRight/ALLQ.length*100)};
+  return {r,total,needs,almost,strong,later,skills,wrong,why,plan,next:NEXTSTEP[Math.min(5,Math.max(1,Math.floor(r.value+1e-9)))]};
 }
 function reportText(a,nm){
   const L=[];
+  L.push("TOTAL SCORE: "+a.total.right+" out of "+a.total.of+" ("+a.total.pct+"%)");
   L.push("LEVEL: "+lvlLabel(a.r.value)+" (grammar, reading and listening)");
   L.push("");L.push("WHY THIS LEVEL");a.why.forEach(w=>L.push("- "+w));
   L.push("");L.push("SCORE BY LEVEL (60% = pass)");
@@ -986,32 +1007,51 @@ function reportText(a,nm){
   return L.join("\n");
 }
 function renderTest(){
-  $("#tTabs").innerHTML=PARTS.map(([id,t])=>{const c=(id==="result")?"":` (${ans(id)}/${tot(id)})`;return `<button class="chip ${tPart===id?"on":""}" data-t="${id}">${t}${c}</button>`}).join("");
+  renderChips();
   let h="";
   if(tPart==="gv")h=`<div class="card"><h3>Part 1: Grammar &amp; vocabulary</h3><p class="lead">Choose the best word or phrase for each gap. 30 questions · about 10 minutes. Don’t use a dictionary or translator.</p>${ALLQ.filter(q=>q.p==="gv").map((q,i)=>qHTML(q,i+1)).join("")}</div>`;
   if(tPart==="read"){let n=0;h=Object.entries(TEXTS).map(([k,t])=>`<div class="card" style="margin-bottom:14px"><div class="passage"><h3>${t.title}</h3><p style="margin:0">${t.body}</p></div>${ALLQ.filter(q=>q.t===k&&q.p==="read").map(q=>qHTML(q,++n)).join("")}</div>`).join("")}
   if(tPart==="listen"){let n=0;h=`<div class="note blue"><b>How this part works:</b> the recordings are from the British Council LearnEnglish website. Press the button to open each one in a new tab, listen (<b>maximum 2 times</b>), then come back and answer. <b>Do not</b> open the transcript or the tasks on that page until you have finished.</div>`+Object.entries(LIS).map(([k,t])=>`<div class="card" style="margin-bottom:14px"><h3>🎧 ${t.title}</h3><p class="date" style="margin-top:-6px">${t.tip}</p><a class="btn pri" href="${t.url}" target="_blank" rel="noopener">▶ Open recording on British Council ↗</a>${ALLQ.filter(q=>q.t===k&&q.p==="listen").map(q=>qHTML(q,++n)).join("")}</div>`).join("")}
   if(tPart==="result")h=renderResult();
   else{
-    const i=PARTS.findIndex(x=>x[0]===tPart),prev=PARTS[i-1],next=PARTS[i+1];
-    h+=`<div class="card tnav" style="margin-top:14px"><div class="date" id="tLeft"></div><div class="toolbar" style="margin:8px 0 0">`
-      +(prev?`<button class="btn" data-nav="${prev[0]}">← Back</button>`:"")
-      +(tPart==="listen"?`<button class="btn pri" data-act="finish">✅ Finish &amp; send to my teacher</button>`:`<button class="btn pri" data-nav="${next[0]}">Next: ${next[1].replace(/^\d · /,"")} →</button>`)
-      +`</div><p class="date" style="margin:6px 0 0">Your answers are saved automatically on this device.</p></div>`;
+    const i=PARTS.findIndex(x=>x[0]===tPart),prev=PARTS[i-1],next=PARTS[i+1],done=tDone[tPart],last=tPart==="listen";
+    let info,main;
+    if(done){const s=sectionScore(tPart);info=`✔ Section finished: <b>${s.right} out of ${s.of} (${s.pct}%)</b>`;
+      main=last?`<button class="btn pri" data-act="finish">See results &amp; send to my teacher →</button>`:`<button class="btn pri" data-nav="${next[0]}">Next: ${next[1].replace(/^\d · /,"")} →</button>`}
+    else{info='<span id="tLeft"></span>';main=`<button class="btn pri" data-act="finish-section">${last?"✅ Finish test":"✅ Finish section"}</button>`}
+    h+=`<div class="tnav"><div class="tnav-in"><div class="tnav-info">${info}<div class="date">Answers are saved automatically.</div></div><div class="tnav-btns">${prev?`<button class="btn" data-nav="${prev[0]}">← Back</button>`:""}${main}</div></div></div>`;
   }
   $("#tBody").innerHTML=h;
   updateLeft();
 }
+function renderChips(){$("#tTabs").innerHTML=PARTS.map(p=>`<button class="chip ${tPart===p[0]?"on":""}" data-t="${p[0]}">${chipLabel(p)}</button>`).join("")}
 function updateLeft(){
   const el=$("#tLeft");if(!el)return;
   const left=tot(tPart)-ans(tPart);
-  el.textContent=left?`${left} question${left>1?"s":""} not answered yet in this part`:"✔ All questions in this part answered";
+  el.textContent=left?`${left} question${left>1?"s":""} not answered yet`:"✔ All questions answered";
+}
+function closeModal(){const m=$("#tModal");if(m)m.remove()}
+function modal(title,html,btns){
+  closeModal();
+  const b=document.createElement("div");b.className="modalBack";b.id="tModal";
+  b.innerHTML=`<div class="modal" role="dialog" aria-modal="true"><div class="mhead"><b>${title}</b><button class="mx" aria-label="Close">×</button></div><div class="mbody">${html}</div><div class="mfoot"></div></div>`;
+  const foot=b.querySelector(".mfoot");
+  btns.forEach(x=>{const el=document.createElement("button");el.className="btn"+(x.pri?" pri":"");el.textContent=x.label;el.onclick=()=>{closeModal();if(x.fn)x.fn()};foot.appendChild(el)});
+  b.querySelector(".mx").onclick=closeModal;b.addEventListener("click",e=>{if(e.target===b)closeModal()});
+  document.body.appendChild(b);
+}
+function finishSection(p){
+  const left=tot(p)-ans(p),last=p==="listen";
+  const apply=()=>{
+    tDone[p]=true;store.set("tDone2",tDone);renderTest();const s=sectionScore(p);
+    modal("Feedback",`<p class="fbscore">Total score is <b>${s.right} out of ${s.of} (${s.pct}%)</b></p><p class="date">${SKILLS[p]}. Your answers are now marked ✓ or ✗. The correct answers and explanations are in your final breakdown.</p>`,
+      [{label:"Review my answers"},{label:last?"See results & send to my teacher":"Next section →",pri:true,fn:()=>last?finishTest():setPart(PARTS[PARTS.findIndex(x=>x[0]===p)+1][0])}]);
+  };
+  if(left)modal("Unanswered questions",`<p>You have <b>${left}</b> unanswered question${left>1?"s":""} in this section. They will count as wrong, and you can’t change your answers after finishing.</p>`,[{label:"Go back and answer"},{label:"Finish anyway",pri:true,fn:apply}]);
+  else apply();
 }
 async function finishTest(){
-  const r=receptive(),left=r.total-r.done;
-  let msg="Finish the test and send your result to your teacher by email?";
-  if(left)msg=`You have ${left} unanswered question${left>1?"s":""} in the whole test. Unanswered questions count as wrong.\n\n`+msg;
-  if(!confirm(msg))return;
+  ["gv","read","listen"].forEach(k=>tDone[k]=true);store.set("tDone2",tDone);
   tPart="result";renderTest();window.scrollTo({top:$("#tTabs").offsetTop-80});
   await sendResult();
 }
@@ -1021,7 +1061,10 @@ function renderResult(){
   const vcls=v=>v==="Strong"?"g":v==="OK"?"b":"r";
   const topicRow=(t,cls,label)=>`<div class="trow"><span class="pill ${cls}">${label}</span> <b>${TOPICS[t.k].n}</b> <span class="date">${t.r}/${t.t}</span></div>`;
   return `${warn}
-  <div class="card"><p class="date">YOUR LEVEL</p><div class="big">${lvlLabel(r.value)}</div>
+  <div class="card"><p class="date">TOTAL SCORE</p><div class="big">${a.total.right} out of ${a.total.of} <span style="font-size:1.4rem">(${a.total.pct}%)</span></div>
+   <table class="t" style="margin-top:12px"><tr><th>Section</th><th>Score</th><th>%</th></tr>${a.skills.map(s=>`<tr><td>${s.name}</td><td>${s.right} out of ${s.of}</td><td>${s.pct}%</td></tr>`).join("")}<tr><td><b>Total</b></td><td><b>${a.total.right} out of ${a.total.of}</b></td><td><b>${a.total.pct}%</b></td></tr></table></div>
+
+  <div class="card" style="margin-top:14px"><p class="date">YOUR LEVEL</p><div class="big">${lvlLabel(r.value)}</div>
    <div style="margin:14px 0">${LVLS.map(l=>{const pc=Math.round(r.pct(l)*100);return `<div class="bar"><b>${l}</b><div class="track"><div class="fill ${pc<60?"fail":""}" style="width:${pc}%"></div><div class="mark" title="60% pass mark"></div></div><span>${pc}%</span></div>`}).join("")}<p class="date">The line marks the 60% pass mark for each level.</p></div></div>
 
   <div class="card" style="margin-top:14px"><h3>🔎 Why this level?</h3><ul class="tidy">${a.why.map(w=>`<li>${w}</li>`).join("")}</ul></div>
@@ -1068,7 +1111,7 @@ async function sendResult(){
 function setPart(x){tPart=x;renderTest();window.scrollTo({top:$("#tTabs").offsetTop-80,behavior:"smooth"})}
 $("#tTabs").addEventListener("click",e=>{const c=e.target.closest(".chip");if(c)setPart(c.dataset.t)});
 $("#tBody").addEventListener("change",e=>{
-  if(e.target.type==="radio"){tAns[e.target.name]=e.target.value;store.set("tAns2",tAns);const c=[...$$("#tTabs .chip")].find(x=>x.dataset.t===tPart);if(c){const k=tPart;c.textContent=PARTS.find(x=>x[0]===k)[1]+` (${ans(k)}/${tot(k)})`}updateLeft()}
+  if(e.target.type==="radio"){tAns[e.target.name]=e.target.value;store.set("tAns2",tAns);const c=[...$$("#tTabs .chip")].find(x=>x.dataset.t===tPart);if(c){const k=tPart;c.textContent=chipLabel(PARTS.find(x=>x[0]===k))}updateLeft()}
 });
 $("#tBody").addEventListener("click",e=>{
   const j=e.target.closest("[data-jump]");
@@ -1076,9 +1119,10 @@ $("#tBody").addEventListener("click",e=>{
   const nv=e.target.closest("[data-nav]");if(nv){setPart(nv.dataset.nav);return}
   const a=e.target.closest("[data-act]");if(!a)return;
   if(a.dataset.act==="finish")finishTest();
+  if(a.dataset.act==="finish-section")finishSection(tPart);
   if(a.dataset.act==="send")sendResult();
   if(a.dataset.act==="save"){const r=receptive();const h=store.get("tHist",[]);h.push({d:new Date().toLocaleDateString("en-GB"),r:lvlLabel(r.value)});store.set("tHist",h);renderTest()}
-  if(a.dataset.act==="reset"&&confirm("Clear all answers and start a new test?")){tAns={};store.set("tAns2",{});tPart="gv";renderTest()}
+  if(a.dataset.act==="reset"&&confirm("Clear all answers and start a new test?")){tAns={};tDone={};store.set("tAns2",{});store.set("tDone2",{});tPart="gv";renderTest()}
 });
 renderTest();
 
