@@ -146,6 +146,9 @@ table.t th{background:var(--brand-soft)}
 .topt.right input:checked+span{background:var(--good-soft);border-color:var(--good);color:var(--good);font-weight:700}
 .topt.wrong input:checked+span{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700}
 .topt input:disabled+span{cursor:default}
+.topt.reveal span{border:2px dashed var(--good);color:var(--good);font-weight:700}
+.fbexp{margin:8px 0 2px;padding:10px 14px;border-left:4px solid var(--bad);background:var(--bad-soft);border-radius:0 10px 10px 0;font-size:.95rem}
+.fbexp .why{margin-top:4px;color:var(--ink)}
 .btn.danger{color:var(--bad);border-color:var(--bad)} .btn.danger:hover{background:var(--bad-soft)}
 .tnav{position:sticky;bottom:0;z-index:15;margin:14px -16px 0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.08)}
 .tnav-in{max-width:1000px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
@@ -944,10 +947,15 @@ const isOK=q=>tAns[q.id]===q.o[0];
 const ans=p=>ALLQ.filter(q=>q.p===p&&tAns[q.id]!==undefined).length, tot=p=>ALLQ.filter(q=>q.p===p).length;
 function qHTML(it,n){
   const locked=!!tDone[it.p],chosen=tAns[it.id],ord=ordCache[it.id]||(ordCache[it.id]=shuffle(it.o));
-  const cls=o=>locked&&chosen===o?(o===it.o[0]?" right":" wrong"):"";
-  const ico=o=>locked&&chosen===o?(o===it.o[0]?" ✓":" ✗"):"";
-  const none=locked&&chosen===undefined?`<div class="no" style="margin-top:4px">✗ No answer</div>`:"";
-  return `<div class="tq"><div class="qt">${n}. ${it.q.replace("___","<b>_____</b>")}</div><div class="opts">${ord.map(o=>`<label class="topt${cls(o)}"><input type="radio" name="${it.id}" value="${esc(o)}" ${chosen===o?"checked":""} ${locked?"disabled":""}><span>${o}${ico(o)}</span></label>`).join("")}</div>${none}</div>`}
+  const wrongNow=locked&&chosen!==it.o[0];
+  const cls=o=>!locked?"":chosen===o?(o===it.o[0]?" right":" wrong"):(wrongNow&&o===it.o[0]?" reveal":"");
+  const ico=o=>!locked?"":chosen===o?(o===it.o[0]?" ✓":" ✗"):(wrongNow&&o===it.o[0]?" ✓":"");
+  let fb="";
+  if(wrongNow){
+    const full=it.p==="gv"?`<div>Correct sentence: ${it.q.replace("___",`<b class="ok">${it.o[0]}</b>`)}</div>`:`<div>The correct answer is: <b class="ok">${it.o[0]}</b></div>`;
+    fb=`<div class="fbexp"><div><b class="no">${chosen===undefined?"✗ You did not answer this question.":"✗ Not quite."}</b></div>${full}<div class="why">💡 Why: ${it.why}</div></div>`;
+  }
+  return `<div class="tq"><div class="qt">${n}. ${it.q.replace("___","<b>_____</b>")}</div><div class="opts">${ord.map(o=>`<label class="topt${cls(o)}"><input type="radio" name="${it.id}" value="${esc(o)}" ${chosen===o?"checked":""} ${locked?"disabled":""}><span>${o}${ico(o)}</span></label>`).join("")}</div>${fb}</div>`}
 const sectionScore=p=>{const qs=ALLQ.filter(q=>q.p===p),right=qs.filter(isOK).length;return {right,of:qs.length,pct:Math.round(right/qs.length*100)}};
 const chipLabel=([id,t])=>id==="result"?t:t+(tDone[id]?` · ${sectionScore(id).right}/${tot(id)} ✓`:` (${ans(id)}/${tot(id)})`);
 
@@ -1057,7 +1065,7 @@ function finishSection(p){
   const left=tot(p)-ans(p),last=p==="listen";
   const apply=()=>{
     tDone[p]=true;store.set("tDone2",tDone);renderTest();const s=sectionScore(p);
-    modal("Feedback",`<p class="fbscore">Total score is <b>${s.right} out of ${s.of} (${s.pct}%)</b></p><p class="date">${SKILLS[p]}. Your answers are now marked ✓ or ✗. The correct answers and explanations are in your final breakdown.</p>`,
+    modal("Feedback",`<p class="fbscore">Total score is <b>${s.right} out of ${s.of} (${s.pct}%)</b></p><p class="date">${SKILLS[p]}. Scroll down: every mistake now shows the correct answer and an explanation of why.</p>`,
       [{label:"Review my answers"},{label:last?"See results & send to my teacher":"Next section →",pri:true,fn:()=>last?finishTest():setPart(PARTS[PARTS.findIndex(x=>x[0]===p)+1][0])}]);
   };
   if(left)modal("Unanswered questions",`<p>You have <b>${left}</b> unanswered question${left>1?"s":""} in this section. They will count as wrong, and you can’t change your answers after finishing.</p>`,[{label:"Go back and answer"},{label:"Finish anyway",pri:true,fn:apply}]);
