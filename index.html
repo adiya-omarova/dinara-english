@@ -992,7 +992,28 @@ function renderTest(){
   if(tPart==="read"){let n=0;h=Object.entries(TEXTS).map(([k,t])=>`<div class="card" style="margin-bottom:14px"><div class="passage"><h3>${t.title}</h3><p style="margin:0">${t.body}</p></div>${ALLQ.filter(q=>q.t===k&&q.p==="read").map(q=>qHTML(q,++n)).join("")}</div>`).join("")}
   if(tPart==="listen"){let n=0;h=`<div class="note blue"><b>How this part works:</b> the recordings are from the British Council LearnEnglish website. Press the button to open each one in a new tab, listen (<b>maximum 2 times</b>), then come back and answer. <b>Do not</b> open the transcript or the tasks on that page until you have finished.</div>`+Object.entries(LIS).map(([k,t])=>`<div class="card" style="margin-bottom:14px"><h3>🎧 ${t.title}</h3><p class="date" style="margin-top:-6px">${t.tip}</p><a class="btn pri" href="${t.url}" target="_blank" rel="noopener">▶ Open recording on British Council ↗</a>${ALLQ.filter(q=>q.t===k&&q.p==="listen").map(q=>qHTML(q,++n)).join("")}</div>`).join("")}
   if(tPart==="result")h=renderResult();
+  else{
+    const i=PARTS.findIndex(x=>x[0]===tPart),prev=PARTS[i-1],next=PARTS[i+1];
+    h+=`<div class="card tnav" style="margin-top:14px"><div class="date" id="tLeft"></div><div class="toolbar" style="margin:8px 0 0">`
+      +(prev?`<button class="btn" data-nav="${prev[0]}">← Back</button>`:"")
+      +(tPart==="listen"?`<button class="btn pri" data-act="finish">✅ Finish &amp; send to my teacher</button>`:`<button class="btn pri" data-nav="${next[0]}">Next: ${next[1].replace(/^\d · /,"")} →</button>`)
+      +`</div><p class="date" style="margin:6px 0 0">Your answers are saved automatically on this device.</p></div>`;
+  }
   $("#tBody").innerHTML=h;
+  updateLeft();
+}
+function updateLeft(){
+  const el=$("#tLeft");if(!el)return;
+  const left=tot(tPart)-ans(tPart);
+  el.textContent=left?`${left} question${left>1?"s":""} not answered yet in this part`:"✔ All questions in this part answered";
+}
+async function finishTest(){
+  const r=receptive(),left=r.total-r.done;
+  let msg="Finish the test and send your result to your teacher by email?";
+  if(left)msg=`You have ${left} unanswered question${left>1?"s":""} in the whole test. Unanswered questions count as wrong.\n\n`+msg;
+  if(!confirm(msg))return;
+  tPart="result";renderTest();window.scrollTo({top:$("#tTabs").offsetTop-80});
+  await sendResult();
 }
 function renderResult(){
   const a=analyse(),r=a.r,hist=store.get("tHist",[]);
@@ -1047,12 +1068,14 @@ async function sendResult(){
 function setPart(x){tPart=x;renderTest();window.scrollTo({top:$("#tTabs").offsetTop-80,behavior:"smooth"})}
 $("#tTabs").addEventListener("click",e=>{const c=e.target.closest(".chip");if(c)setPart(c.dataset.t)});
 $("#tBody").addEventListener("change",e=>{
-  if(e.target.type==="radio"){tAns[e.target.name]=e.target.value;store.set("tAns2",tAns);const c=[...$$("#tTabs .chip")].find(x=>x.dataset.t===tPart);if(c){const k=tPart;c.textContent=PARTS.find(x=>x[0]===k)[1]+` (${ans(k)}/${tot(k)})`}}
+  if(e.target.type==="radio"){tAns[e.target.name]=e.target.value;store.set("tAns2",tAns);const c=[...$$("#tTabs .chip")].find(x=>x.dataset.t===tPart);if(c){const k=tPart;c.textContent=PARTS.find(x=>x[0]===k)[1]+` (${ans(k)}/${tot(k)})`}updateLeft()}
 });
 $("#tBody").addEventListener("click",e=>{
   const j=e.target.closest("[data-jump]");
   if(j){const [tab,id]=j.dataset.jump.split(":");go(tab);if(id)setTimeout(()=>{const t=document.getElementById(id);if(t)window.scrollTo({top:t.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})},80);return}
+  const nv=e.target.closest("[data-nav]");if(nv){setPart(nv.dataset.nav);return}
   const a=e.target.closest("[data-act]");if(!a)return;
+  if(a.dataset.act==="finish")finishTest();
   if(a.dataset.act==="send")sendResult();
   if(a.dataset.act==="save"){const r=receptive();const h=store.get("tHist",[]);h.push({d:new Date().toLocaleDateString("en-GB"),r:lvlLabel(r.value)});store.set("tHist",h);renderTest()}
   if(a.dataset.act==="reset"&&confirm("Clear all answers and start a new test?")){tAns={};store.set("tAns2",{});tPart="gv";renderTest()}
