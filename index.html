@@ -1022,7 +1022,7 @@ function renderTest(){
     if(done){const s=sectionScore(tPart);info=`✔ Section finished: <b>${s.right} out of ${s.of} (${s.pct}%)</b>`;
       main=last?`<button class="btn pri" data-act="finish">See results &amp; send to my teacher →</button>`:`<button class="btn pri" data-nav="${next[0]}">Next: ${next[1].replace(/^\d · /,"")} →</button>`}
     else{info='<span id="tLeft"></span>';main=`<button class="btn pri" data-act="finish-section">${last?"✅ Finish test":"✅ Finish section"}</button>`}
-    h+=`<div class="tnav"><div class="tnav-in"><div class="tnav-info">${info}<div class="date">Answers are saved automatically.</div></div><div class="tnav-btns">${prev?`<button class="btn" data-nav="${prev[0]}">← Back</button>`:""}<button class="btn danger" data-act="restart">✖ Cancel &amp; start over</button>${main}</div></div></div>`;
+    h+=`<div class="tnav"><div class="tnav-in"><div class="tnav-info">${info}<div class="date">Answers are saved automatically.</div></div><div class="tnav-btns">${prev?`<button class="btn" data-nav="${prev[0]}">← Back</button>`:""}<button class="btn danger" data-act="restart">Start over</button>${main}</div></div></div>`;
   }
   $("#tBody").innerHTML=h;
   updateLeft();
