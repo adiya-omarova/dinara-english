@@ -189,7 +189,6 @@ footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
     <button data-p="lessons">Lessons</button>
     <button data-p="speaking">Speaking</button>
     <button data-p="vocab">Vocabulary</button>
-    <button data-p="detox">Detox</button>
     <button data-p="grammar">Grammar</button>
     <button data-p="practice">Practice</button>
     <button data-p="test">Level test</button>
@@ -208,7 +207,7 @@ footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
   <div class="grid g2">
     <div class="card link" data-go="lessons"><h3>Lessons</h3><p>Lesson notes by date: weekend chat and listening follow-up.</p></div>
     <div class="card link" data-go="speaking"><h3>Speaking</h3><p>8 questions with model answers, grouped in 3 themes. Cover the answer, speak, then check.</p></div>
-    <div class="card link" data-go="vocab"><h3>Vocabulary</h3><p>6 themes with Russian translations, search, hide-translation mode and flashcards.</p></div>
+    <div class="card link" data-go="vocab"><h3>Vocabulary</h3><p>7 themes with Russian translations, search, hide-translation mode and flashcards.</p></div>
     <div class="card link" data-go="grammar"><h3>Grammar</h3><p>15 topics in 4 groups, explained super simply, using sentences from your own answers.</p></div>
     <div class="card link" data-go="practice"><h3>Practice</h3><p>Quick quizzes: choose the right answer and see your score.</p></div>
     <div class="card"><h3>How to study</h3>
@@ -260,15 +259,6 @@ footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
   </div>
   <div class="chips" id="spkChips"></div>
   <div id="spkList"></div>
-</section>
-
-<!-- DETOX -->
-<section class="page" id="detox">
-  <h1>Detox</h1>
-  <p class="lead">Words from the British Council listening <b>A digital detox</b> (B2). Listen first, then check the words. Tick the ones you know.</p>
-  <p><a class="btn pri" href="https://learnenglish.britishcouncil.org/free-resources/listening/b2/digital-detox-podcast" target="_blank" rel="noopener">Open the listening</a></p>
-  <div class="toolbar"><button class="btn" id="dHide">Hide Russian</button></div>
-  <div id="dList"></div>
 </section>
 
 <!-- VOCAB -->
@@ -659,6 +649,24 @@ const VOCAB=[
   ["Apply","применять"],
   ["Have control over","контролировать что-либо"],
   ["Believe","верить, считать правдой"]]},
+ {id:"detox",title:"Listening: A digital detox",icon:"",cls:"o",words:[
+  ["Digital detox","цифровой детокс, отказ от гаджетов на время"],
+  ["Disconnect","отключиться (от интернета, от сети)"],
+  ["Switch-off","полное отключение"],
+  ["Notification","уведомление"],
+  ["Alert","оповещение, сигнал"],
+  ["Distraction","то, что отвлекает"],
+  ["Habit","привычка"],
+  ["A grip on someone","власть над кем-либо, «хватка»"],
+  ["Kill time","убивать время"],
+  ["Time goes by","время проходит"],
+  ["Confess","признаваться"],
+  ["Literally","буквально"],
+  ["Drastic","радикальный, резкий"],
+  ["Rewarding","приносящий удовлетворение"],
+  ["At your own pace","в своём темпе"],
+  ["Guarantee","гарантировать, ручаться"],
+  ["Grow out of","вырасти из чего-то, возникнуть из чего-то"]]]},
  {id:"answers",title:"Useful phrases from your answers",icon:"",cls:"o",words:[
   ["Pay close attention","уделять пристальное внимание"],
   ["Exhausted","измотанный, совершенно без сил"],
@@ -795,33 +803,6 @@ renderSpeak();
 
 /* ---------- VOCAB ---------- */
 let vTheme="all", known=store.get("known",{});
-/* ---------- DETOX ---------- */
-const DETOX=[
-  ["Digital detox","цифровой детокс, отказ от гаджетов на время"],
-  ["Disconnect","отключиться (от интернета, от сети)"],
-  ["Switch-off","полное отключение"],
-  ["Notification","уведомление"],
-  ["Alert","оповещение, сигнал"],
-  ["Distraction","то, что отвлекает"],
-  ["Habit","привычка"],
-  ["A grip on someone","власть над кем-либо, «хватка»"],
-  ["Kill time","убивать время"],
-  ["Time goes by","время проходит"],
-  ["Confess","признаваться"],
-  ["Literally","буквально"],
-  ["Drastic","радикальный, резкий"],
-  ["Rewarding","приносящий удовлетворение"],
-  ["At your own pace","в своём темпе"],
-  ["Guarantee","гарантировать, ручаться"],
-  ["Grow out of","вырасти из чего-то, возникнуть из чего-то"]];
-function renderDetox(){
-  $("#dList").innerHTML=`<div class="vtheme"><div class="vhead"><h3>A digital detox</h3><span class="vcount">${DETOX.filter((_,i)=>known["detox"+i]).length} / ${DETOX.length} known</span></div><div class="vlist">`+DETOX.map((w,i)=>`<label class="vrow ${known["detox"+i]?"known":""}"><input type="checkbox" data-k="detox${i}" ${known["detox"+i]?"checked":""}><span class="en">${w[0]}</span><span class="ru">${w[1]}</span></label>`).join("")+`</div></div>`;
-}
-$("#dList").addEventListener("change",e=>{const k=e.target.dataset.k;if(!k)return;known[k]=e.target.checked;if(!e.target.checked)delete known[k];store.set("known",known);renderDetox()});
-$("#dList").addEventListener("click",e=>{const r=e.target.closest(".ru");if(r&&$("#dList").classList.contains("hide-ru")){e.preventDefault();r.classList.toggle("show")}});
-$("#dHide").onclick=function(){const h=$("#dList").classList.toggle("hide-ru");this.classList.toggle("on",h);this.textContent=h?"Show Russian":"Hide Russian"};
-renderDetox();
-
 function renderVocab(){
   const q=$("#vsearch").value.trim().toLowerCase();
   $("#vChips").innerHTML=[{id:"all",title:"All"},...VOCAB].map(t=>`<button class="chip ${vTheme===t.id?"on":""}" data-t="${t.id}">${t.icon||""} ${t.title}</button>`).join("");
