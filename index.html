@@ -793,6 +793,8 @@ $("#openAll").onclick=()=>$$(".qa").forEach(d=>d.open=true);
 $("#closeAll").onclick=()=>$$(".qa").forEach(d=>d.open=false);
 renderSpeak();
 
+/* ---------- VOCAB ---------- */
+let vTheme="all", known=store.get("known",{});
 /* ---------- DETOX ---------- */
 const DETOX=[
   ["Digital detox","цифровой детокс, отказ от гаджетов на время"],
@@ -820,8 +822,6 @@ $("#dList").addEventListener("click",e=>{const r=e.target.closest(".ru");if(r&&$
 $("#dHide").onclick=function(){const h=$("#dList").classList.toggle("hide-ru");this.classList.toggle("on",h);this.textContent=h?"Show Russian":"Hide Russian"};
 renderDetox();
 
-/* ---------- VOCAB ---------- */
-let vTheme="all", known=store.get("known",{});
 function renderVocab(){
   const q=$("#vsearch").value.trim().toLowerCase();
   $("#vChips").innerHTML=[{id:"all",title:"All"},...VOCAB].map(t=>`<button class="chip ${vTheme===t.id?"on":""}" data-t="${t.id}">${t.icon||""} ${t.title}</button>`).join("");
