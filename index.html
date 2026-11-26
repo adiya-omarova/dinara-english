@@ -49,6 +49,9 @@ section.page{display:none} section.page.on{display:block}
 .pill{display:inline-block;font-size:.78rem;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand);margin-right:6px}
 .pill.o{background:var(--accent-soft);color:var(--accent)} .pill.b{background:var(--blue-soft);color:var(--blue)} .pill.v{background:var(--violet-soft);color:var(--violet)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 22px}
+.cgroup{flex-basis:100%;font-weight:700;color:var(--muted);font-size:.85rem;margin-top:6px}
+.vgroup{margin:26px 0 12px}
+.vlink{margin-left:auto;font-size:.88rem;font-weight:600}
 .chip{border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:.92rem;font-weight:600;padding:6px 14px;border-radius:999px;cursor:pointer}
 .chip:hover{border-color:var(--brand)}
 .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -207,7 +210,7 @@ footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
   <div class="grid g2">
     <div class="card link" data-go="lessons"><h3>Lessons</h3><p>Lesson notes by date: weekend chat and listening follow-up.</p></div>
     <div class="card link" data-go="speaking"><h3>Speaking</h3><p>8 questions with model answers, grouped in 3 themes. Cover the answer, speak, then check.</p></div>
-    <div class="card link" data-go="vocab"><h3>Vocabulary</h3><p>9 themes with Russian translations, search, hide-translation mode and flashcards.</p></div>
+    <div class="card link" data-go="vocab"><h3>Vocabulary</h3><p>10 themes with Russian translations, search, hide-translation mode and flashcards.</p></div>
     <div class="card link" data-go="grammar"><h3>Grammar</h3><p>15 topics in 4 groups, explained super simply, using sentences from your own answers.</p></div>
     <div class="card link" data-go="practice"><h3>Practice</h3><p>Quick quizzes: choose the right answer and see your score.</p></div>
     <div class="card"><h3>How to study</h3>
@@ -264,7 +267,7 @@ footer{max-width:1000px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 <!-- VOCAB -->
 <section class="page" id="vocab">
   <h1>Vocabulary</h1>
-  <p class="lead">9 themes, every word with its Russian translation. Tick ✔ the words you already know; your progress is saved on this device.</p>
+  <p class="lead">10 themes, every word with its Russian translation. Tick ✔ the words you already know; your progress is saved on this device.</p>
   <div class="toolbar" id="vTools">
     <input type="search" id="vsearch" placeholder="Search English or Russian…">
     <button class="btn" id="hideRu">Hide Russian</button>
@@ -616,7 +619,7 @@ const VOCAB=[
   ["Let’s go with your decision","давайте поступим так, как вы решили"],
   ["I’ll follow your lead","я последую вашему примеру / буду действовать под вашим руководством"],
   ["Go with the majority","согласиться с решением большинства"]]},
- {id:"fake",title:"Fake news and information",icon:"",cls:"b",words:[
+ {id:"fake",title:"Fake news and information",group:"reading",url:"https://learnenglish.britishcouncil.org/free-resources/reading/b1/how-spot-fake-news",icon:"",cls:"b",words:[
   ["Be bombarded by","подвергаться потоку чего-либо, например информации"],
   ["Advertisement / ad","реклама, рекламное объявление"],
   ["Upset people","расстраивать людей, вызывать у них неприятные эмоции"],
@@ -629,7 +632,7 @@ const VOCAB=[
   ["Examine","изучать, внимательно исследовать"],
   ["Phenomenon","явление"],
   ["Get fooled","быть обманутым, попасться на обман"]]},
- {id:"check",title:"Checking information",icon:"",cls:"v",words:[
+ {id:"check",title:"Checking information",group:"reading",url:"https://learnenglish.britishcouncil.org/free-resources/reading/b1/how-spot-fake-news",icon:"",cls:"v",words:[
   ["Check the source","проверить источник"],
   ["A variety of","разнообразие, множество разных видов"],
   ["Watch out for","остерегаться, обращать внимание на возможную опасность"],
@@ -640,7 +643,7 @@ const VOCAB=[
   ["Trust","доверять"],
   ["Exception","исключение"],
   ["Publish a story","опубликовать материал"]]},
- {id:"signs",title:"Recognising warning signs",icon:"",cls:"",words:[
+ {id:"signs",title:"Recognising warning signs",group:"reading",url:"https://learnenglish.britishcouncil.org/free-resources/reading/b1/how-spot-fake-news",icon:"",cls:"",words:[
   ["Sign","признак"],
   ["Technique","приём, способ"],
   ["ALL CAPS","текст, написанный ЗАГЛАВНЫМИ БУКВАМИ"],
@@ -649,7 +652,7 @@ const VOCAB=[
   ["Apply","применять"],
   ["Have control over","контролировать что-либо"],
   ["Believe","верить, считать правдой"]]},
- {id:"detox",title:"Listening: A digital detox",icon:"",cls:"o",words:[
+ {id:"detox",title:"A digital detox (B2)",group:"listening",url:"https://learnenglish.britishcouncil.org/free-resources/listening/b2/digital-detox-podcast",icon:"",cls:"o",words:[
   ["Digital detox","цифровой детокс, отказ от гаджетов на время"],
   ["Disconnect","отключиться (от интернета, от сети)"],
   ["Switch-off","полное отключение"],
@@ -667,7 +670,7 @@ const VOCAB=[
   ["At your own pace","в своём темпе"],
   ["Guarantee","гарантировать, ручаться"],
   ["Grow out of","вырасти из чего-то, возникнуть из чего-то"]]},
- {id:"meeting",title:"Listening: Changing a meeting time",icon:"",cls:"b",words:[
+ {id:"meeting",title:"Changing a meeting time (A2)",group:"listening",url:"https://learnenglish.britishcouncil.org/free-resources/listening/a2/changing-meeting-time",icon:"",cls:"b",words:[
   ["Do you have a minute?","у тебя есть минутка?"],
   ["Move a meeting","перенести встречу на другое время"],
   ["Postpone","отложить, перенести на более поздний срок"],
@@ -680,7 +683,7 @@ const VOCAB=[
   ["Updated meeting invite","обновлённое приглашение на встречу"],
   ["Cancel","отменить"],
   ["In the meantime","тем временем, а пока"]]},
- {id:"party",title:"Listening: An invitation to a party",icon:"",cls:"v",words:[
+ {id:"party",title:"An invitation to a party (A2)",group:"listening",url:"https://learnenglish.britishcouncil.org/free-resources/listening/a2/invitation-party",icon:"",cls:"v",words:[
   ["Automated message","автоматическое сообщение"],
   ["Receive","получать"],
   ["I guess","наверное, полагаю"],
@@ -694,6 +697,28 @@ const VOCAB=[
   ["Turn left / on the right","повернуть налево / справа"],
   ["Pick someone up","забрать кого-то (на машине)"],
   ["I can’t wait","жду не дождусь"]]},
+ {id:"venue",title:"Choosing a conference venue (A2)",group:"reading",url:"https://learnenglish.britishcouncil.org/free-resources/reading/a2/choosing-conference-venue",icon:"",cls:"b",words:[
+  ["Conference venue","место проведения конференции"],
+  ["Training day","день обучения, тренинг"],
+  ["Event","мероприятие"],
+  ["Offer (verb)","предлагать"],
+  ["Secure parking","охраняемая парковка"],
+  ["Refreshments","напитки и лёгкие закуски"],
+  ["Conveniently located","удобно расположенный"],
+  ["City centre","центр города"],
+  ["Country house","загородный дом, усадьба"],
+  ["Surrounded by","окружённый чем-либо"],
+  ["Rolling hills","пологие холмы"],
+  ["Scenery","пейзаж, природа вокруг"],
+  ["A 30-minute drive","30 минут езды"],
+  ["Takes up to 200 people","вмещает до 200 человек"],
+  ["Whiteboard","белая маркерная доска"],
+  ["Make use of","воспользоваться чем-либо"],
+  ["Team-building","сплочение команды, тимбилдинг"],
+  ["Indoor / outdoor","в помещении / на открытом воздухе"],
+  ["Ensure","гарантировать, обеспечить"],
+  ["Enjoyable","приятный"],
+  ["Facilities","удобства, оборудование"]]},
  {id:"answers",title:"Useful phrases from your answers",icon:"",cls:"o",words:[
   ["Pay close attention","уделять пристальное внимание"],
   ["Exhausted","измотанный, совершенно без сил"],
@@ -830,16 +855,18 @@ renderSpeak();
 
 /* ---------- VOCAB ---------- */
 let vTheme="all", known=store.get("known",{});
+const VGROUPS=[["listening","Listening"],["reading","Reading"],["lesson","Lesson topics"]];
 function renderVocab(){
   const q=$("#vsearch").value.trim().toLowerCase();
-  $("#vChips").innerHTML=[{id:"all",title:"All"},...VOCAB].map(t=>`<button class="chip ${vTheme===t.id?"on":""}" data-t="${t.id}">${t.icon||""} ${t.title}</button>`).join("");
-  $("#vList").innerHTML=VOCAB.filter(t=>vTheme==="all"||vTheme===t.id).map(t=>{
+  const chip=t=>`<button class="chip ${vTheme===t.id?"on":""}" data-t="${t.id}">${t.title}</button>`;
+  $("#vChips").innerHTML=chip({id:"all",title:"All"})+VGROUPS.map(([g,name])=>`<div class="cgroup">${name}</div>`+VOCAB.filter(t=>(t.group||"lesson")===g).map(chip).join("")).join("");
+  $("#vList").innerHTML=VGROUPS.map(([g,name])=>{const body=VOCAB.filter(t=>(t.group||"lesson")===g&&(vTheme==="all"||vTheme===t.id)).map(t=>{
     const rows=t.words.map((w,i)=>({w,key:t.id+i})).filter(({w})=>!q||(w[0]+" "+w[1]).toLowerCase().includes(q));
     if(!rows.length)return "";
     const k=t.words.filter((_,i)=>known[t.id+i]).length;
-    return `<div class="vtheme" id="th-${t.id}"><div class="vhead"><h3>${t.title}</h3><span class="vcount">${k} / ${t.words.length} known</span></div>
+    return `<div class="vtheme" id="th-${t.id}"><div class="vhead"><h3>${t.title}</h3><span class="vcount">${k} / ${t.words.length} known</span>${t.url?`<a class="vlink" href="${t.url}" target="_blank" rel="noopener">${g==="listening"?"Open the listening":g==="reading"&&t.url.includes("fake-news")?"Open: How to spot fake news":"Open the reading"}</a>`:""}</div>
     <div class="vlist">${rows.map(({w,key})=>`<label class="vrow ${known[key]?"known":""}"><input type="checkbox" data-k="${key}" ${known[key]?"checked":""}><span class="en">${w[0]}</span><span class="ru">${w[1]}</span></label>`).join("")}</div></div>`;
-  }).join("")||`<p class="lead">No words found.</p>`;
+  }).join("");return body?`<h2 class="vgroup">${name}</h2>${body}`:""}).join("")||`<p class="lead">No words found.</p>`;
 }
 $("#vChips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(c){vTheme=c.dataset.t;renderVocab()}});
 $("#vsearch").addEventListener("input",renderVocab);
